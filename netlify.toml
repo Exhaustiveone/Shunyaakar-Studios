@@ -2,6 +2,13 @@
 [build]
   publish = "."
 
+# Netlify blocks a deploy if any environment variable's value appears in the files.
+# These two aren't secret (the project URL is public by design, the email is just the
+# desk's username), so they're skipped. SUPABASE_SERVICE_KEY and any other key
+# are still scanned.
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,ADMIN_EMAIL"
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
