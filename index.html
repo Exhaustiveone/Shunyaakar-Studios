@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Shunyaakar | A production house from Jaipur</title>
+  <meta name="description" content="Shunyaakar is a production house from Jaipur making films and music from the first page of a script to the final mix. Now in pre-production: AHAM.">
+  <meta name="theme-color" content="#0E0A1C">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Shunyaakar">
+  <meta property="og:title" content="Shunyaakar | A production house from Jaipur">
+  <meta property="og:description" content="Films and music, made from zero. Now in pre-production: AHAM.">
+  <!-- After you deploy, change these two to the full address, e.g. https://your-site.netlify.app/assets/img/share-card.png -->
+  <meta property="og:image" content="assets/img/share-card.png">
+  <meta name="twitter:image" content="assets/img/share-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "#shunyaakar",
+        "name": "Shunyaakar",
+        "alternateName": "शून्याकार",
+        "description": "A production house from Jaipur making films and music, from the first page of a script to the final mix.",
+        "founder": { "@type": "Person", "name": "Mayank Sharma" },
+        "address": { "@type": "PostalAddress", "addressLocality": "Jaipur", "addressRegion": "Rajasthan", "addressCountry": "IN" }
+      },
+      {
+        "@type": "Movie",
+        "name": "AHAM",
+        "alternateName": "अहम्",
+        "description": "A film about the self that hides, and the self that answers.",
+        "genre": ["Mythological", "Psychological"],
+        "inLanguage": "hi",
+        "director": { "@type": "Person", "name": "Mayank Sharma" },
+        "author": { "@type": "Person", "name": "Mayank Sharma" },
+        "productionCompany": { "@id": "#shunyaakar" }
+      }
+    ]
+  }
+  </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230E0A1C'/%3E%3Ccircle cx='50' cy='50' r='27' fill='none' stroke='%23FFB224' stroke-width='9'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300..900&family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Caveat:wght@500;700&family=Courier+Prime&family=Rozha+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+  <!-- ========== LOADER: film-leader countdown ========== -->
+  <div class="loader" id="loader" role="dialog" aria-modal="true" aria-label="Enter Shunyaakar">
+    <div class="leader" aria-hidden="true">
+      <span class="leader-sweep"></span>
+      <span class="leader-cross"></span>
+      <span class="leader-num" id="leaderNum">3</span>
+    </div>
+    <p class="loader-word" lang="hi" aria-hidden="true">शून्य से</p>
+    <div class="gate" id="gate">
+      <p class="gate-title">Shunyaakar</p>
+      <button class="gate-btn" id="enterSound" type="button">
+        <span class="gate-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        Enter with sound
+      </button>
+      <button class="gate-quiet" id="enterQuiet" type="button">Enter without sound</button>
+      <p class="gate-note">Best with headphones. You can turn sound off any time with the speaker button.</p>
+    </div>
+  </div>
+
+  <a class="skip" href="#main">Skip to content</a>
+
+  <!-- ========== NAV ========== -->
+  <header class="nav" id="nav">
+    <div class="wrap nav-inner">
+      <a class="logo" href="#top" aria-label="Shunyaakar home">
+        <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11"/></svg>
+        <span>Shunyaakar</span>
+      </a>
+      <nav aria-label="Main">
+        <ul class="nav-links" id="navLinks">
+          <li><a href="#films">Films</a></li>
+          <li><a href="#making">Process</a></li>
+          <li><a href="#journal">Journal</a></li>
+          <li><a href="#music">Music</a></li>
+          <li><a href="#services">Work with us</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-btn sound-btn" id="soundBtn" type="button" aria-pressed="true" aria-label="Turn sound off">
+          <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path class="wave" d="M16 8.5c1.2 1 1.8 2.2 1.8 3.5s-.6 2.5-1.8 3.5M18.5 6c2 1.6 3 3.6 3 6s-1 4.4-3 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="mute" d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <a class="btn btn-line nav-cta" href="#contact">Start a project</a>
+        <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ========== HERO: fly through the zero (scroll-driven) ========== -->
+    <section class="hero" id="top">
+      <div class="hero-pin">
+        <canvas id="portal" aria-hidden="true"></canvas>
+
+        <div class="viewfinder" aria-hidden="true">
+          <span class="vf-corner tl"></span><span class="vf-corner tr"></span>
+          <span class="vf-corner bl"></span><span class="vf-corner br"></span>
+          <p class="vf-rec"><span class="rec-dot"></span>REC <span class="tc" id="heroTC">01:00:00:00</span></p>
+          <p class="vf-loc">Jaipur <span class="js-clock">--:--</span> IST</p>
+          <p class="vf-status"><span class="live-dot"></span><span class="js-status">Now: AHAM, pre-production</span></p>
+        </div>
+
+        <div class="hero-card">
+          <p class="hero-deva" lang="hi">शून्याकार</p>
+          <h1 class="wordmark" aria-label="Shunyaakar"><span class="wm" aria-hidden="true"></span></h1>
+          <p class="hero-lede">A production house from Jaipur. We take films and music from the first page of a script to the final mix, and we show you every step on the way.</p>
+          <div class="hero-cta">
+            <button class="btn btn-brass" id="reelBtn" type="button">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5v14l12-7z" fill="currentColor"/></svg>
+              <span id="reelBtnText">Follow the making of AHAM</span>
+            </button>
+            <a class="btn btn-line" href="#films">See the films</a>
+          </div>
+        </div>
+
+        <p class="hero-statement" aria-hidden="true"><span>Every story</span><span>starts at zero.</span></p>
+
+        <div class="hero-scroll" aria-hidden="true"><span class="hero-scroll-bar"><i></i></span>Scroll to fly through the zero</div>
+      </div>
+    </section>
+
+    <!-- ========== GIANT WORD BANDS (move with scroll) ========== -->
+    <div class="bands" id="bands" aria-hidden="true">
+      <div class="band band-a" data-speed="-0.35">
+        <span class="c-rani">Films</span><span class="c-bone">✦</span><span class="c-marigold">Music</span><span class="c-bone">✦</span><span class="c-peacock">VFX</span><span class="c-bone">✦</span><span class="c-royal">Animation</span><span class="c-bone">✦</span><span class="c-rani">Films</span><span class="c-bone">✦</span><span class="c-marigold">Music</span>
+      </div>
+      <div class="band band-b" data-speed="0.35">
+        <span class="c-outline">Made in Jaipur</span><span class="c-marigold">●</span><span class="c-outline">From zero</span><span class="c-rani">●</span><span class="c-outline">Made in Jaipur</span><span class="c-peacock">●</span><span class="c-outline">From zero</span>
+      </div>
+    </div>
+
+    <!-- ========== MANIFESTO (lights up word by word) ========== -->
+    <section class="manifesto" id="manifesto" aria-label="What Shunyaakar believes">
+      <div class="manifesto-pin">
+        <div class="manifesto-inner">
+          <p class="manifesto-text" id="manifestoText"></p>
+          <p class="manifesto-sign">Mayank Sharma, founder</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== STUDIO / DIVISIONS ========== -->
+    <section class="section studio" id="studio" aria-labelledby="studioTitle">
+      <div class="wrap">
+        <div class="studio-head">
+          <h2 class="h2" id="studioTitle">One house, many worlds</h2>
+          <p class="lead">Shunyaakar means "the shape of zero". Every project starts there: a blank page, no budget, one camera. Two worlds are open today. The rest are being built.</p>
+        </div>
+        <div class="worlds" id="worlds"></div>
+      </div>
+    </section>
+
+    <!-- ========== FILMS (clapperboard reveal) ========== -->
+    <section class="films" id="films" aria-labelledby="filmsTitle">
+      <div class="films-stage" id="filmsStage">
+
+        <div class="clapper-layer" id="clapperLayer" hidden aria-hidden="true">
+          <div class="clapper-sticky">
+            <div class="clapper-shake">
+              <div class="clapper" id="clapper">
+                <div class="clapper-sticks">
+                  <div class="clapper-arm"></div>
+                  <div class="clapper-base"></div>
+                  <span class="clapper-hinge"></span>
+                </div>
+                <div class="clapper-board">
+                  <div class="cb-row cb-prod">
+                    <span class="cb-label">Prod.</span>
+                    <span class="cb-write" style="--i:0">Shunyaakar Films</span>
+                  </div>
+                  <div class="cb-grid">
+                    <div class="cb-cell"><span class="cb-label">Roll</span><span class="cb-write" style="--i:1">01</span></div>
+                    <div class="cb-cell"><span class="cb-label">Scene</span><span class="cb-write" style="--i:2">Films</span></div>
+                    <div class="cb-cell"><span class="cb-label">Take</span><span class="cb-write" style="--i:3" id="takeNo">1</span></div>
+                  </div>
+                  <div class="cb-grid cb-grid-2">
+                    <div class="cb-cell"><span class="cb-label">Director</span><span class="cb-write" style="--i:4">Mayank Sharma</span></div>
+                    <div class="cb-cell"><span class="cb-label">Date</span><span class="cb-write" style="--i:5" id="clapDate">—</span></div>
+                  </div>
+                  <div class="cb-tc-row">
+                    <span class="cb-tc" id="slateTC">00:00:00:00</span>
+                    <p class="cb-foot">Every film here starts at zero.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <span class="clapper-flash"></span>
+          </div>
+        </div>
+        <span class="iris-ring" aria-hidden="true"></span>
+
+        <div class="wrap films-content">
+          <div class="films-head">
+            <div>
+              <h2 class="h2" id="filmsTitle">Films</h2>
+              <p class="films-sub">Written, shot and cut in-house. Open a film to follow its making.</p>
+            </div>
+            <button class="btn btn-line clap-again" id="clapAgain" type="button">
+              <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M3 10h18v10H3z M3 10l2-5 16-2 1 4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+              Clap again
+            </button>
+          </div>
+          <div class="film-board" id="filmBoard"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MAKING OF (featured film process) ========== -->
+    <section class="section making" id="making" aria-labelledby="makingTitle">
+      <div class="wrap">
+        <div class="making-grid">
+          <aside class="making-aside" id="makingAside"></aside>
+          <div>
+            <h2 class="making-kicker" id="makingTitle">The making of, from zero</h2>
+            <ol class="reel" id="makingReel"></ol>
+          </div>
+        </div>
+        <div class="numbers" id="numbers"></div>
+        <div class="yugas-main" id="yugas"></div>
+        <div class="cast-wrap" id="castWrap"></div>
+        <div class="callsheet-wrap" id="callsheet"></div>
+      </div>
+    </section>
+
+    <!-- ========== NOTES FROM THE SET (horizontal journal) ========== -->
+    <section class="journal" id="journal" aria-labelledby="journalTitle">
+      <div class="journal-pin">
+        <div class="journal-track" id="journalTrack">
+          <div class="journal-intro">
+            <h2 class="h2" id="journalTitle">Notes from the set</h2>
+            <p class="lead">A production diary, written while it happens. The wins, the problems, and what a film with no budget actually looks like from the inside.</p>
+            <p class="journal-hint" aria-hidden="true"><span></span>Keep scrolling</p>
+          </div>
+          <div class="journal-cards" id="journalCards"></div>
+          <div class="journal-end">
+            <p class="journal-end-title">More notes every shoot day.</p>
+            <a class="btn btn-brass" href="#letters">Get them as letters</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MUSIC ========== -->
+    <section class="section music" id="music" aria-labelledby="musicTitle">
+      <div class="wrap music-grid">
+        <div>
+          <h2 class="h2" id="musicTitle">Shunyaakar Sound</h2>
+          <p class="lead">The music division starts where our films need it most: songs, scores and sound design written for the story, never pulled from a library. First release: the soundtrack of AHAM, built on a damru and heavy drums.</p>
+          <div class="eq-wrap">
+            <canvas id="eq" aria-hidden="true"></canvas>
+            <button class="damru-btn" id="damruBtn" type="button">
+              <svg viewBox="0 0 48 48" width="24" height="24" aria-hidden="true"><path d="M8 8h32L27 24l13 16H8l13-16z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><circle cx="12" cy="24" r="2.5" fill="currentColor"/><circle cx="36" cy="24" r="2.5" fill="currentColor"/></svg>
+              Play the damru
+            </button>
+          </div>
+        </div>
+        <div>
+          <h3 class="tracks-title">On the desk right now</h3>
+          <ul class="tracks" id="tracks"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== WORK WITH US ========== -->
+    <section class="section services" id="services" aria-labelledby="servicesTitle">
+      <div class="wrap">
+        <div class="services-head">
+          <h2 class="h2" id="servicesTitle">Work with us</h2>
+          <p class="lead">The same hands that make our films are available for yours. Pick what you need and tell me about it.</p>
+        </div>
+        <ul class="service-list" id="serviceList"></ul>
+      </div>
+    </section>
+
+    <!-- ========== PERSONAL PORTFOLIO LINK ========== -->
+    <section class="section personal" id="portfolio" aria-labelledby="personalTitle">
+      <div class="wrap personal-grid">
+        <a class="pinned" data-scrub data-href="brand.portfolioUrl" href="https://shunyaakar.netlify.app" target="_blank" rel="noopener">
+          <span class="pin" aria-hidden="true"></span>
+          <img src="assets/img/portfolio-collage.webp" alt="Portfolio collage. Opens my personal portfolio in a new tab." width="736" height="920" loading="lazy">
+          <span class="pinned-sticker" aria-hidden="true">Open</span>
+        </a>
+        <div class="personal-copy">
+          <h2 class="h2" id="personalTitle">Before the studio, there was a camera</h2>
+          <p class="lead">Photography, design and travel work: sadhus and artisans, architecture at night, industry up close. It all lives on my personal portfolio.</p>
+          <a class="btn btn-brass" data-href="brand.portfolioUrl" href="https://shunyaakar.netlify.app" target="_blank" rel="noopener">Open my portfolio</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== ABOUT ========== -->
+    <section class="section about" id="about" aria-labelledby="aboutTitle">
+      <div class="wrap about-grid">
+        <figure class="portrait" id="founderPhoto" data-scrub>
+          <div class="portrait-img"><span class="monogram" aria-hidden="true">MS</span></div>
+          <figcaption>Mayank Sharma, founder</figcaption>
+        </figure>
+        <div class="about-copy">
+          <h2 class="h2" id="aboutTitle">The person behind the zero</h2>
+          <p class="lead">I'm Mayank Sharma, a filmmaker, photographer and creative director from Jaipur. Shunyaakar started as the name on my photographs. Now it's the house where my films and music get made, and this site is its open notebook.</p>
+          <p>I write, direct, shoot and cut my own films, mostly on Sundays, mostly with no lighting kit and a lot of stubbornness. Everything I learn along the way goes up here, from the first draft to the final grade.</p>
+          <ul class="stickies">
+            <li class="sticky s1">Writer, director, cinematographer, editor</li>
+            <li class="sticky s2">Natural light is part of the crew.</li>
+            <li class="sticky s3">Script first, always.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== CONTACT ========== -->
+    <section class="contact" id="contact" aria-labelledby="contactTitle">
+      <div class="contact-stage" id="contactStage">
+        <div class="contact-pin">
+          <span class="contact-flood" aria-hidden="true"></span>
+          <div class="wrap contact-inner">
+            <h2 class="contact-title" id="contactTitle">Let's make something from <span class="ring-word">zero<svg class="ring-svg" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="100" cy="52" rx="95" ry="44" pathLength="1"/></svg></span>.</h2>
+            <svg class="seal" viewBox="0 0 300 300" aria-hidden="true">
+              <defs><path id="sealPath" d="M150,150 m-118,0 a118,118 0 1,1 236,0 a118,118 0 1,1 -236,0"/></defs>
+              <circle cx="150" cy="150" r="146" class="seal-bg"/>
+              <text><textPath href="#sealPath" textLength="728" lengthAdjust="spacing">Open for new projects ✦ Films ✦ Music ✦ Scores ✦</textPath></text>
+              <circle cx="150" cy="150" r="62" class="seal-core"/>
+              <path class="seal-arrow" d="M150 116 V184 M122 158 L150 186 L178 158"/>
+            </svg>
+            <p class="lead contact-lead">Short films, music videos, scores, brand stories, or a role in AHAM. Tell me what you're making and I'll reply <span data-bind="brand.replyTime">within two days</span>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-body">
+        <div class="wrap contact-grid">
+          <form class="contact-form" id="contactForm" name="contact" method="POST" data-netlify="true" netlify-honeypot="company" action="/">
+            <input type="hidden" name="form-name" value="contact">
+            <p class="hp" aria-hidden="true"><label>Company <input name="company" tabindex="-1" autocomplete="off"></label></p>
+            <div class="field-row">
+              <label class="field"><span>Your name</span><input name="name" type="text" autocomplete="name" required></label>
+              <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
+            </div>
+            <label class="field"><span>What are you making?</span>
+              <select name="project" id="projectType">
+                <option>Short or branded film</option>
+                <option>Music video</option>
+                <option>Cinematography</option>
+                <option>Edit and colour</option>
+                <option>Music or score</option>
+                <option>Photography</option>
+                <option>A role in AHAM (cast or crew)</option>
+                <option>Something else</option>
+              </select>
+            </label>
+            <label class="field"><span>When do you need it? <em>Optional</em></span><input name="timeline" type="text" placeholder="e.g. shooting in November"></label>
+            <label class="field"><span>Tell me about it</span><textarea name="message" id="contactMessage" rows="5" required></textarea></label>
+            <div class="form-foot">
+              <button class="btn btn-ink" type="submit" id="contactSubmit">Send it</button>
+              <p class="form-note">I reply to every message, <span data-bind="brand.replyTime">within two days</span>.</p>
+            </div>
+            <div class="form-done" id="formDone" hidden>
+              <p class="form-done-stamp">Received</p>
+              <p>Thank you. Your message is on my desk, and I'll reply <span data-bind="brand.replyTime">within two days</span>.</p>
+            </div>
+          </form>
+
+          <div class="contact-links">
+            <p class="contact-kicker">Or write directly</p>
+            <a class="contact-mail" id="contactMail" href="mailto:hello@shunyaakar.com">hello@shunyaakar.com</a>
+            <dl class="contact-facts">
+              <div><dt>Studio</dt><dd data-bind="brand.location">Jaipur, Rajasthan</dd></div>
+              <div><dt>Local time</dt><dd><span class="js-clock">--:--</span> IST</dd></div>
+              <div><dt>Right now</dt><dd class="js-status-long">AHAM, pre-production</dd></div>
+            </dl>
+            <ul class="socials" id="socials"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-letters" id="letters">
+          <h2 class="footer-title">Letters from the set</h2>
+          <p>Drafts, stills, songs and the odd disaster, straight from the making of AHAM. Not too often.</p>
+          <form class="letters-form" id="lettersForm" name="letters" method="POST" data-netlify="true" netlify-honeypot="website" action="/">
+            <input type="hidden" name="form-name" value="letters">
+            <p class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></p>
+            <label class="sr-only" for="lettersEmail">Email address</label>
+            <input id="lettersEmail" name="email" type="email" placeholder="Your email" autocomplete="email" required>
+            <button class="btn btn-brass" type="submit">Subscribe</button>
+          </form>
+        </div>
+        <nav class="footer-col" aria-label="Footer">
+          <p class="footer-h">Explore</p>
+          <ul>
+            <li><a href="#films">Films</a></li>
+            <li><a href="#making">The making of AHAM</a></li>
+            <li><a href="#journal">Notes from the set</a></li>
+            <li><a href="#music">Shunyaakar Sound</a></li>
+            <li><a href="#services">Work with us</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+        <div class="footer-col">
+          <p class="footer-h">Studio</p>
+          <ul>
+            <li data-bind="brand.location">Jaipur, Rajasthan</li>
+            <li><span class="js-clock">--:--</span> IST</li>
+            <li class="footer-status"><span class="live-dot"></span><span class="js-status-long">AHAM, pre-production</span></li>
+            <li><a class="js-mail" href="mailto:hello@shunyaakar.com">hello@shunyaakar.com</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-mark" id="footerMark" aria-hidden="true"><canvas></canvas></div>
+      <div class="footer-inner">
+        <p class="footer-deva" lang="hi">शून्य से, सब कुछ।</p>
+        <p>© <span id="year">2026</span> Shunyaakar. Made in Jaipur.</p>
+        <a href="#top">Back to top</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== FILM ROOM (film detail overlay) ========== -->
+  <div class="room" id="room" hidden>
+    <div class="room-panel" role="dialog" aria-modal="true" aria-labelledby="roomTitle" tabindex="-1">
+      <button class="icon-btn room-close" id="roomClose" type="button" aria-label="Close film">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <div class="room-body" id="roomBody"></div>
+    </div>
+  </div>
+
+  <!-- ========== SHOWREEL MODAL ========== -->
+  <div class="room reel-modal" id="reelModal" hidden>
+    <div class="room-panel reel-panel" role="dialog" aria-modal="true" aria-label="Showreel" tabindex="-1">
+      <button class="icon-btn room-close" id="reelClose" type="button" aria-label="Close showreel">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <div class="reel-frame" id="reelFrame"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/content.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

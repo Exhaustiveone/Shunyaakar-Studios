@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scene not found | Shunyaakar</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0E0A1C">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230E0A1C'/%3E%3Ccircle cx='50' cy='50' r='27' fill='none' stroke='%23FFB224' stroke-width='9'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Courier+Prime&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink: #0E0A1C; --bone: #F6F0E6; --rani: #FF3D8B; --marigold: #FFB224; --peacock: #13C2B0; --royal: #4B63FF; --paper: #F3EDE1; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 2rem 1.25rem 3rem;
+      background: var(--ink); color: var(--bone); font-family: "Bricolage Grotesque", system-ui, sans-serif; text-align: center; overflow-x: hidden;
+    }
+    .slate {
+      width: min(560px, 100%); background: var(--paper); color: var(--ink); border: 3px solid #07050F; border-radius: 0 0 14px 14px;
+      padding: 1.4rem 1.6rem 1.6rem; text-align: left; transform: rotate(-2.5deg); position: relative; margin-top: 3rem;
+      box-shadow: 0 40px 60px rgba(0, 0, 0, .5);
+    }
+    .sticks {
+      position: absolute; left: -3px; right: -3px; top: -44px; height: 40px; border: 3px solid #07050F; border-radius: 6px;
+      background: linear-gradient(118deg, var(--rani) 0 11%, #0F0C1A 11% 19%, var(--marigold) 19% 30%, #0F0C1A 30% 38%, var(--peacock) 38% 49%, #0F0C1A 49% 57%, var(--royal) 57% 68%, #0F0C1A 68% 76%, var(--paper) 76% 87%, #0F0C1A 87% 100%);
+      transform-origin: 3% 100%; transform: rotate(-18deg); animation: clap 2.6s cubic-bezier(.8, 0, 1, .45) infinite;
+    }
+    @keyframes clap { 0%, 55% { transform: rotate(-18deg); } 62% { transform: rotate(0); } 80%, 100% { transform: rotate(-18deg); } }
+    .row { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 2px solid var(--ink); }
+    .row div { padding: .3rem .7rem .5rem; } .row div:first-child { padding-left: 0; } .row div + div { border-left: 2px solid var(--ink); }
+    .row span { display: block; font-weight: 800; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; }
+    .row b { font-family: "Courier Prime", monospace; font-size: 1.5rem; }
+    h1 { font-family: "Unbounded", sans-serif; font-weight: 800; font-size: clamp(2.6rem, 11vw, 5.4rem); letter-spacing: -.05em; line-height: 1; margin: 2.8rem 0 .8rem; }
+    p { font-size: 1.15rem; line-height: 1.55; max-width: 34ch; margin: 0 auto 2rem; color: #DCD5EA; }
+    a { display: inline-block; background: var(--marigold); color: var(--ink); font-weight: 700; text-decoration: none; padding: .95em 1.7em; border-radius: 999px; }
+    a:hover { background: var(--bone); }
+    a:focus-visible { outline: 2px solid var(--bone); outline-offset: 4px; }
+    @media (prefers-reduced-motion: reduce) { .sticks { animation: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="slate" aria-hidden="true">
+      <span class="sticks"></span>
+      <div class="row"><div><span>Scene</span><b>404</b></div><div><span>Take</span><b>0</b></div><div><span>Roll</span><b>—</b></div></div>
+    </div>
+    <h1>This scene was cut.</h1>
+    <p>The page you're looking for didn't make the final edit. The rest of the film is still running.</p>
+    <a href="/">Back to the studio</a>
+  </main>
+</body>
+</html>
