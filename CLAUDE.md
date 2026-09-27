@@ -12,7 +12,7 @@
 - **Brand:** **Shunyaakar** (शून्याकार), "the shape of zero". Motto on the site: *every story starts at zero*. Footer line: "शून्य से, सब कुछ।"
 - **What the site is:** the founding website of a full-spectrum production house. Films and Music are live divisions; VFX and Animation are shown as "opening soon". It also works as an open notebook, showing the complete process of the first short film, **AHAM**, from script to release.
 - **His separate personal portfolio** (photography, design, travel) lives at `https://shunyaakar.netlify.app`. This site links to it; it is a different site.
-- **Tech:** plain static site. HTML, CSS and vanilla JS. **No framework, no build step, no npm dependencies.** Deploy target is **Netlify** (drag-and-drop or Git), which also handles the two forms.
+- **Tech:** plain static site. HTML, CSS and vanilla JS. **No framework, no build step, no npm dependencies.** Deploy target is **Netlify, from the GitHub repo** (drag-and-drop can't deploy functions). A small backend (Netlify Functions + Supabase + Resend) handles the two forms and the private `/desk/`; see section 14 and `BACKEND.md`.
 - **Editing tools:** Claude Code (this repo via GitHub) and **Antigravity** (a VS Code-style IDE). Preview locally with the **Live Server** extension, or `python -m http.server 5500`, then open `http://localhost:5500`.
 
 ---
@@ -62,9 +62,15 @@ The owner's own words across the design rounds: *"larger than life"*, *"another 
 
 ```
 /
-├── index.html        page structure (all sections, the 2 Netlify forms, SEO + JSON-LD, share-card meta)
+├── index.html        page structure (all sections, the 2 forms → /api/*, SEO + JSON-LD, share-card meta)
 ├── 404.html          "This scene was cut." page with a clapping slate (Netlify serves it automatically)
 ├── README.md         owner-facing guide (how to edit content, deploy, tweak timings)
+├── BACKEND.md        owner-facing backend setup (Supabase, Resend, Netlify env vars) and desk guide
+├── netlify.toml      functions dir, desk headers, 404s for repo-only files
+├── netlify/functions/ contact, subscribe, unsubscribe, desk, keepalive (plain ESM, fetch only)
+├── netlify/lib/      http.mjs, db.mjs (Supabase REST), mail.mjs (Resend + email templates)
+├── supabase/schema.sql  tables + RLS (run once in the Supabase SQL editor)
+├── desk/             the private studio desk (index.html, desk.css, desk.js, demo.js)
 ├── CLAUDE.md         this file
 ├── css/style.css     all styles (~1200 lines); tokens in :root at the top
 ├── js/content.js     ★ ALL CONTENT as window.SITE (films, stages, journal, roles, services, tracks, links)
@@ -76,7 +82,7 @@ The owner's own words across the design rounds: *"larger than life"*, *"another 
     └── video/   (empty)
 ```
 
-**Rule: content lives in `js/content.js`; `main.js` renders it.** When the owner asks to change text, films, roles, journal entries, stats or links, edit `content.js`, not the HTML. Exceptions that are static in `index.html`: the hero lede, section intro paragraphs, the About copy, the contact form fields, and the footer. Netlify can only detect forms that are in static HTML.
+**Rule: content lives in `js/content.js`; `main.js` renders it.** When the owner asks to change text, films, roles, journal entries, stats or links, edit `content.js`, not the HTML. Exceptions that are static in `index.html`: the hero lede, section intro paragraphs, the About copy, the contact form fields, and the footer. The two forms post to `/api/contact` and `/api/subscribe` (see section 14).
 
 ---
 
@@ -114,9 +120,9 @@ Scroll order, with the key selector and function for each part:
 12. **About** (`#about`). Polaroid portrait: `brand.founderPhoto`, or an "MS" monogram until a photo exists. Plus three sticky notes.
 13. **Contact finale** (`#contact`):
     - `.contact-stage` (230vh, pinned; `initFinale`): pink floods out from a circle, each word of "Let's make something from zero." flies in from in front of the lens, then a ring draws around "zero". A rotating "Open for new projects" seal lands on desktop.
-    - `.contact-body`: the **Netlify contact form**, plus the email, a live clock, current status and socials.
+    - `.contact-body`: the **contact form** (→ `/api/contact`), plus the email, a live clock, current status and socials.
 14. **Footer:**
-    - "Letters from the set", a **Netlify** newsletter form.
+    - "Letters from the set", the newsletter sign-up (→ `/api/subscribe`).
     - Explore and Studio columns, including the live Jaipur clock.
     - **SHUNYAAKAR assembled from particles** (`initFooterMark`, canvas in `#footerMark`). The particles from the opening zero fly in left-to-right and form the name as you reach the bottom; the cursor scatters the grains and they spring back.
 15. **Overlays:**
@@ -167,7 +173,7 @@ Implementation: `yugaHTML` builds the pinned stage (`.yuga-pin` 520vh, `.yuga-st
 | `initMagnetic` | Buttons drift slightly toward the pointer | Fine pointers only. |
 | `initStatus` | Fills `.js-status`, `.js-status-long`, `.js-stage` and `.js-clock` (Asia/Kolkata) from `SITE.status` | |
 | `initFilmActions` | Share (Web Share API, or copy link), trailer buttons, `#film-<id>` deep links | |
-| `initForms` | Netlify AJAX submit (`fetch("/")`, urlencoded) with a "Received" stamp | Off Netlify it falls back to a `mailto:` with the message pre-filled. |
+| `initForms` | Posts JSON to the form's `action` (`/api/contact`, `/api/subscribe`) with a "Received" stamp | Server validation errors show as a toast; if the API isn't reachable (Live Server) it falls back to a `mailto:`. |
 | `prefillContact(type, msg)` | Selects the project type, pre-fills the message, scrolls to the form | Used by the call sheet and services. |
 
 All animations respect `prefers-reduced-motion` (`REDUCE`): pins become static and canvases draw one frame.
@@ -237,10 +243,11 @@ Studied: A24, Blumhouse, Yash Raj Films, Somesuch, Nexus Studios, DNEG. Borrowed
 
 1. Replace `brand.email` and `brand.socials` in `content.js`.
 2. In `index.html`, change the `og:image` and `twitter:image` meta tags to the **absolute live URL** of `assets/img/share-card.png`.
-3. Deploy to Netlify. In the dashboard: **Forms → Enable form detection**, then redeploy, then add **Submission notifications** (email).
+3. Deploy to Netlify from GitHub and finish the backend setup in `BACKEND.md` (desk user, disable sign-ups, secret key, three Netlify env vars; the tables already exist).
 4. Add real assets as they exist: stills and storyboards (stage `media`), the founder photo, the AHAM poster, trailer and showreel embed URLs, and mp3 tracks.
 5. **Portfolio collage** (`assets/img/portfolio-collage.webp`) contains another designer's text ("4+ years of experience…"). Replace it with the owner's own image.
 6. Close the call sheet (`callsheet.open:false`) when AHAM is cast.
+7. Optional: automatic email via Resend (see the end of `BACKEND.md`).
 
 ---
 
@@ -286,3 +293,20 @@ Headless Chromium with Playwright:
 7. The yuga reveal was reworked to be intense rather than a party; the footer became the particle wordmark; the cursor circle was removed.
 
 A private preview has been published as a Claude artifact; the real deployment target is Netlify.
+
+---
+
+## 14. Backend: forms, database and the studio desk
+
+Added 27 Sep 2026. Owner-facing setup and usage are in `BACKEND.md`.
+
+- **Stack:** Netlify Functions v2 (`export default (req) => Response`, `config.path`), Supabase (Postgres via PostgREST, plus Supabase Auth for the desk login). **Resend is optional and off by default** (owner's choice, 27 Sep 2026): newsletters are sent from the owner's Gmail via the desk's copy-letter / copy-emails (Bcc) / open-Gmail / mark-as-sent steps. **No npm packages**: the functions use `fetch` and web-standard APIs only.
+- **Endpoints:** `POST /api/contact`, `POST /api/subscribe` (both accept JSON, or urlencoded for no-JS posts, and have honeypots `company` / `website`), `/unsubscribe` (also `/api/unsubscribe`): without a token it asks for the email and answers the same either way; with `?t=<token>` GET confirms and POST does it (RFC 8058 one-click), `POST /api/desk {action}`, and the scheduled `keepalive` (daily).
+- **Tables** (`supabase/schema.sql`): `enquiries` (status new/replied/done/spam, notes), `enquiry_replies`, `subscribers` (email unique, status, private `token`), `letters` (status draft/sent/partial, `updated_at`, `sent_at`; desk actions `letter.save`, `letter.mark_sent`, `letter.delete`). RLS is on with no policies, so only the secret key (server side) can read or write.
+- **Desk auth:** `login` exchanges email and password with Supabase Auth; every other action verifies the bearer token via `/auth/v1/user` **and** that the email equals `ADMIN_EMAIL`. Sign-ups are disabled in Supabase.
+- **Env vars:** `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` (new `sb_secret_` keys go only in `apikey`; legacy JWT keys also go in `Authorization`), `ADMIN_EMAIL`. Optional (Resend): `RESEND_API_KEY`, `NOTIFY_EMAIL`, and after a domain `MAIL_FROM`, `REPLY_TO`, `SITE_URL`. Supabase project ref `hlwzwsujxuyrzbzcibyt` (Tokyo); schema already applied. The owner's `.env` (gitignored) holds `SUPABASE_URI` for direct Postgres access.
+- **Setup vs live mail:** `mailConfig().live` is true once `MAIL_FROM` isn't `@resend.dev`. Before that, only the owner's alerts and tests are sent; desk replies, acknowledgements, welcomes and letters are refused with a clear message, and the desk falls back to `mailto:`.
+- **Safety rules:** escape every user value in the desk (`esc`) and in the emails (`esc` in `mail.mjs`); validate ids with `isId` before putting them in PostgREST filters; CSV export neutralises formula cells; `letter.send` requires `expect` to equal the live subscriber count and refuses the same subject within 15 minutes.
+- **Desk UI** follows the site's palette and fonts (flat colours, Unbounded / Bricolage / Caveat for the "desk" mark). Status colours: new = rani, replied = peacock, done = outline, spam = grey. It must work at 390px with no horizontal overflow.
+- **Testing without Node:** a module service worker can import the real function files and route `/api/*` to them, with `fetch` mocked for Supabase and Resend. That is how this was verified; the harness lives outside the repo.
+- **Demo mode:** `desk.js` asks `/api/desk {action:"status"}` on load. If the backend isn't reachable or isn't configured (`ready:false`), it loads `desk/demo.js`, which answers every desk action from sample data in localStorage (login `demo@shunyaakar.test` / `shunyaakar-demo`). A demo session is dropped once the real backend is ready. Keep `demo.js` in step with new desk actions.

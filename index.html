@@ -348,8 +348,7 @@
 
       <div class="contact-body">
         <div class="wrap contact-grid">
-          <form class="contact-form" id="contactForm" name="contact" method="POST" data-netlify="true" netlify-honeypot="company" action="/">
-            <input type="hidden" name="form-name" value="contact">
+          <form class="contact-form" id="contactForm" name="contact" method="POST" action="/api/contact">
             <p class="hp" aria-hidden="true"><label>Company <input name="company" tabindex="-1" autocomplete="off"></label></p>
             <div class="field-row">
               <label class="field"><span>Your name</span><input name="name" type="text" autocomplete="name" required></label>
@@ -400,8 +399,7 @@
         <div class="footer-letters" id="letters">
           <h2 class="footer-title">Letters from the set</h2>
           <p>Drafts, stills, songs and the odd disaster, straight from the making of AHAM. Not too often.</p>
-          <form class="letters-form" id="lettersForm" name="letters" method="POST" data-netlify="true" netlify-honeypot="website" action="/">
-            <input type="hidden" name="form-name" value="letters">
+          <form class="letters-form" id="lettersForm" name="letters" method="POST" action="/api/subscribe">
             <p class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1" autocomplete="off"></label></p>
             <label class="sr-only" for="lettersEmail">Email address</label>
             <input id="lettersEmail" name="email" type="email" placeholder="Your email" autocomplete="email" required>

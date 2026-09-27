@@ -1500,11 +1500,20 @@
      FORMS — Netlify Forms over AJAX, with an honest fallback
      ------------------------------------------------------------------- */
   function initForms() {
-    const send = form => fetch("/", {
+    // Both forms post JSON to the site's own API (netlify/functions). An error the server
+    // explains (a bad email, too many messages) is "told"; anything else means the API
+    // isn't reachable (e.g. Live Server on localhost), so we fall back.
+    const send = form => fetch(form.getAttribute("action"), {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams(new FormData(form)).toString()
-    }).then(r => { if (!r.ok) throw new Error(r.status); });
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(Object.fromEntries(new FormData(form)))
+    }).then(async r => {
+      const d = await r.json().catch(() => null);
+      if (r.ok && d && d.ok) return d;
+      const err = new Error((d && d.error) || "offline");
+      err.told = !!(d && d.error);
+      throw err;
+    });
     const email = (S.brand && S.brand.email) || "";
 
     const contact = $("#contactForm");
@@ -1515,8 +1524,9 @@
         contact.classList.add("is-sent"); $("#formDone").hidden = false;
         if (Sound.enabled) Sound.clap();
         toast("Message received.");
-      }).catch(() => {
+      }).catch(err => {
         btn.disabled = false; btn.textContent = "Send it";
+        if (err.told) { toast(err.message); return; }
         const d = new FormData(contact);
         const body = encodeURIComponent(`${d.get("message") || ""}\n\n${d.get("name") || ""}\nProject: ${d.get("project") || ""}\nTimeline: ${d.get("timeline") || ""}`);
         toast("The form only works on the live site. Opening your email app instead.");
@@ -1530,9 +1540,9 @@
       const btn = $("button", letters); btn.disabled = true;
       send(letters).then(() => {
         letters.innerHTML = `<p class="letters-done">You're on the list. The first letter comes from the set.</p>`;
-      }).catch(() => {
+      }).catch(err => {
         btn.disabled = false;
-        toast("Sign-up works once the site is live on Netlify.");
+        toast(err.told ? err.message : "Sign-up works once the site is live on Netlify.");
       });
     });
   }

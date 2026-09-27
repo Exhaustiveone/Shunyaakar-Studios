@@ -22,9 +22,9 @@ shunyaakar-studio/
 1. `js/content.js` → `brand.email` and `brand.socials`: your real email and profile links.
 2. `index.html`, near the top → change the two `og:image` lines to your full live address
    (e.g. `https://your-site.netlify.app/assets/img/share-card.png`) so link previews show the card.
-3. Deploy on Netlify, then in the Netlify dashboard go to **Forms → Enable form detection** and redeploy.
-   The contact form and "Letters from the set" sign-up will then land in your Netlify dashboard.
-   Add an email notification under **Forms → Submission notifications** to get them in your inbox.
+3. Connect the backend: follow **[BACKEND.md](BACKEND.md)** (Supabase, about 15 minutes).
+   Contact enquiries, "Letters from the set" sign-ups and your newsletters then live in your
+   private desk at `/desk/`. You send letters from your own Gmail, and the desk does the copying.
 4. When AHAM is fully cast, set `callsheet.open: false` to hide the casting call.
 
 ## Everyday edits (all in `js/content.js`)
@@ -113,9 +113,10 @@ e.g. `your-site.netlify.app/#film-humsaya`. The featured film links to `#making`
 
 ## Deploy
 
-Drag the whole `shunyaakar-studio` folder onto Netlify (app.netlify.com → Add new site →
-Deploy manually). Paths are relative, so the pages work anywhere, but the two forms need Netlify.
-Opened as a local file, the contact form falls back to opening your email app instead.
+Netlify deploys from the GitHub repo (Add new site → Import an existing project → GitHub).
+Every push to `main` goes live. Drag-and-drop no longer works, because the forms and the desk
+run on Netlify Functions, which only deploy from Git or the CLI. Opened locally (Live Server),
+the contact form falls back to opening your email app instead. See [BACKEND.md](BACKEND.md).
 
 ## Image tips
 
