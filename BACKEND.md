@@ -39,7 +39,7 @@ Functions don't deploy with drag-and-drop. In Netlify: **Add new site → Import
 
 ### 1. Supabase
 
-Your project (`hlwzwsujxuyrzbzcibyt`) already exists and **the tables are already created**. For a fresh project, paste [`supabase/schema.sql`](supabase/schema.sql) into **SQL Editor → New query → Run**. It's safe to run again.
+Your project already exists and **the tables are already created**. For a fresh project, paste [`supabase/schema.sql`](supabase/schema.sql) into **SQL Editor → New query → Run**. It's safe to run again.
 
 1. **Authentication → Sign In / Providers**: turn **off** "Allow new users to sign up". Only you should have an account.
 2. **Authentication → Users → Add user → Create new user**: your email and a strong password, with **Auto Confirm User** ticked. This is your desk login.
@@ -51,7 +51,7 @@ In Netlify go to **Site configuration → Environment variables → Add a variab
 
 | Key | Value |
 |---|---|
-| `SUPABASE_URL` | `https://hlwzwsujxuyrzbzcibyt.supabase.co` |
+| `SUPABASE_URL` | your Project URL, `https://<project-ref>.supabase.co` (Project Settings → API; also in your local `.env`) |
 | `SUPABASE_SERVICE_KEY` | the secret key from step 1.3 |
 | `ADMIN_EMAIL` | the email you created in step 1.2 |
 
