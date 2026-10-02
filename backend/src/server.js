@@ -38,8 +38,10 @@ async function handleApi(req, res, pathname) {
   if (wait) throw new HttpError(429, "Too many requests. Slow down a little.", { "Retry-After": String(wait) });
   const matches = routes.filter(([, re]) => re.test(pathname));
   if (!matches.length) throw new HttpError(404, "Not found.");
-  const route = matches.find(([method]) => method === req.method);
-  if (!route) throw new HttpError(405, "Method not allowed.", { Allow: matches.map(([m]) => m).join(", ") });
+  // HEAD is answered like GET, without a body (uptime monitors often use HEAD on /api/health)
+  const method = req.method === "HEAD" ? "GET" : req.method;
+  const route = matches.find(([m]) => m === method);
+  if (!route) throw new HttpError(405, "Method not allowed.", { Allow: matches.map(([m]) => m === "GET" ? "GET, HEAD" : m).join(", ") });
   const m = route[1].exec(pathname);
   await route[2](req, res, { id: m[1] });
 }
