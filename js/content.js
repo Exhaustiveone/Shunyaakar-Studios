@@ -18,7 +18,7 @@ window.SITE = {
     name: "Shunyaakar",
     founder: "Mayank Sharma",
     location: "Jaipur, Rajasthan",
-    email: "hello@shunyaakar.com",            // ← replace with your real email
+    email: "hello@shunyaakarstudios.in",
     portfolioUrl: "https://shunyaakar.netlify.app", // ← your personal portfolio
     apiUrl: "https://shunyaakar-studios.onrender.com",   // ← the backend (Render). Forms post here when the site is opened from another host.
     showreelUrl: "",                          // ← YouTube embed link when ready
@@ -36,8 +36,9 @@ window.SITE = {
      the footer and the call sheet. Update it as the film moves on. */
   status: {
     film: "AHAM",
-    stage: "Pre-production",
-    detail: "Storyboards next, then seven Sundays of shooting."
+    stage: "Production",
+    short: "AHAM, shooting · 60% shot",   // the one-line status in the hero viewfinder
+    detail: "60% of the film is shot."
   },
 
   /* The manifesto. It lights up word by word as you scroll.
@@ -52,7 +53,7 @@ window.SITE = {
       name: "Films",
       status: "live",
       tone: "brass",
-      text: "Short films written, shot and cut in-house. AHAM is in pre-production now.",
+      text: "Short films written, shot and cut in-house. AHAM is shooting now, 60% in the can.",
       link: "#films",
       linkText: "See the films"
     },
@@ -60,7 +61,7 @@ window.SITE = {
       name: "Music",
       status: "live",
       tone: "brass-2",
-      text: "Original songs, scores and sound design, starting with the soundtrack of AHAM.",
+      text: "Original songs, scores and sound design. AHAM's music is made with Genvox Studio.",
       link: "#music",
       linkText: "Hear the sound"
     },
@@ -68,15 +69,13 @@ window.SITE = {
       name: "VFX",
       status: "soon",
       tone: "steel",
-      text: "Compositing and invisible effects, built first for our own films.",
-      progress: 15
+      text: "Compositing and invisible effects, built first for our own films."
     },
     {
       name: "Animation",
       status: "soon",
       tone: "steel-2",
-      text: "2D and motion work for stories that can't be shot on a camera.",
-      progress: 5
+      text: "2D and motion work for stories that can't be shot on a camera."
     }
   ],
 
@@ -95,7 +94,7 @@ window.SITE = {
       devanagari: "अहम्",
       year: "2026",
       genre: "Mythological, psychological",
-      status: "Pre-production",
+      status: "Production",
       accent: "#FF3D8B", accent2: "#FFB224",
       poster: "",                         // ← "assets/img/aham/poster.jpg"
       tagline: "A film about the self that hides, and the self that answers.",
@@ -109,7 +108,7 @@ window.SITE = {
       credits: [
         { role: "Written and directed by", name: "Mayank Sharma" },
         { role: "Cinematography and edit", name: "Mayank Sharma" },
-        { role: "Music", name: "Shunyaakar Sound" },
+        { role: "Music and songs", name: "Shunyaakar Sound with Genvox Studio" },
         { role: "Language", name: "Hindi" },
         { role: "Shot in", name: "Jagatpura and Ramnagariya, Jaipur" },
         { role: "Camera", name: "Sony a6100, natural light" }
@@ -146,14 +145,13 @@ window.SITE = {
         },
         {
           name: "Pre-production",
-          status: "rolling",
-          when: "Planning the shoot",
+          status: "done",
+          when: "Shoot planned",
           summary:
             "29 scenes mapped to real locations around Jagatpura and SKIT, a seven-Sunday shoot calendar, and a lighting language designed for zero budget.",
           notes: [
             "Veer's world: warm, soft light",
-            "The Other: one hard, cool source",
-            "Storyboards up next"
+            "The Other: one hard, cool source"
           ],
           media: [
             { type: "image", src: "", caption: "Location recce: railway crossing" },
@@ -163,8 +161,9 @@ window.SITE = {
         },
         {
           name: "Production",
-          status: "next",
-          when: "Seven Sundays",
+          status: "rolling",
+          when: "Shooting now",
+          progress: 60,                   // ← % of the film shot; shown as a meter
           summary:
             "Shot on a Sony a6100 with natural light, reflectors and whatever the street lamps give us: the railway crossing, the campus, the scrubland off Vatika Road, half-built sites at night.",
           notes: ["The night hunt: street light only"],
@@ -179,7 +178,7 @@ window.SITE = {
           when: "Edit, grade, sound",
           summary:
             "Two colour worlds in the grade, a damru that keeps returning in the sound design, and an original score that mixes mythology with heavy drums.",
-          notes: ["Original song: Kalyug Charam"],
+          notes: ["Original song: Kalyug Charam", "Music with Genvox Studio"],
           media: [{ type: "image", src: "", caption: "Edit timeline" }]
         },
         {
@@ -203,12 +202,15 @@ window.SITE = {
         ],
         final: "मैं।"
       },
+      /* The people of AHAM. Each card opens a profile.
+         photo: "assets/img/aham/veer.jpg"  (portrait works best, about 4:5)
+         actor: who plays them, about: a few lines about the actor or character */
       cast: [
-        { name: "Veer", role: "The one who stays quiet", note: "21, civil engineering student. Types 'Okay.' when he means everything else.", actor: "" },
-        { name: "The Other", role: "The one who answers", note: "Wakes when Veer sleeps. Steady in a way that is worse than speed.", actor: "" },
-        { name: "Ananya", role: "The one who sees", note: "Knows him well enough to look past his answers.", actor: "" },
-        { name: "The Old Man", role: "The one who knows", note: "Runs a chai stall that seems older than the road.", actor: "" },
-        { name: "Shekhar", role: "The one who takes", note: "Submits Veer's work under his own name. Every time.", actor: "" }
+        { name: "Veer", role: "The one who stays quiet", note: "21, civil engineering student. Types 'Okay.' when he means everything else.", actor: "", photo: "", about: "" },
+        { name: "The Other", role: "The one who answers", note: "Wakes when Veer sleeps. Steady in a way that is worse than speed.", actor: "", photo: "", about: "" },
+        { name: "Ananya", role: "The one who sees", note: "Knows him well enough to look past his answers.", actor: "", photo: "", about: "" },
+        { name: "The Old Man", role: "The one who knows", note: "Runs a chai stall that seems older than the road.", actor: "", photo: "", about: "" },
+        { name: "Shekhar", role: "The one who takes", note: "Submits Veer's work under his own name. Every time.", actor: "", photo: "", about: "" }
       ]
     },
     {
@@ -247,8 +249,8 @@ window.SITE = {
       ]
     },
     {
-      id: "nanhni-muskan",
-      title: "Nanhni Muskan",
+      id: "nanhi-muskaan",
+      title: "Nanhi Muskaan",
       year: "In development",
       genre: "Drama, awareness",
       status: "Writing",
@@ -315,17 +317,13 @@ window.SITE = {
      ------------------------------------------------------------------ */
   callsheet: {
     open: true,
-    film: "AHAM",
-    where: "Jagatpura, Jaipur",
-    when: "Sundays",
+    film: "Nanhi Muskaan",
+    where: "Jaipur",
+    when: "Dates to be announced",
+    status: "Casting",
     roles: [
-      { role: "Veer / The Other", who: "One actor, two selves. Early twenties, fluent in Hindi, can go from swallowed anger to total calm without a word.", type: "Cast" },
-      { role: "Ananya", who: "Early twenties. The friend who sees past the answer to the thing underneath it.", type: "Cast" },
-      { role: "Shekhar", who: "Early twenties. Loud, charming, takes the credit and claps you on the shoulder for it.", type: "Cast" },
-      { role: "The Old Man", who: "Sixty or older. Runs a chai stall and talks like he's finishing someone else's sentence.", type: "Cast" },
-      { role: "Sound recordist", who: "Someone with a boom and patience. Night exteriors, a lot of silence to protect.", type: "Crew" },
-      { role: "Assistant director", who: "Keeps seven Sundays on schedule and the call sheet honest.", type: "Crew" },
-      { role: "Grip and reflectors", who: "No lights on this film, so bouncing the sun is the whole job.", type: "Crew" }
+      { role: "Child artist", who: "A young actor for a central role. Natural on camera, comfortable in Hindi, with a parent or guardian on set.", type: "Cast" },
+      { role: "Female vocalist", who: "A voice for the film's song. Send a recording of anything you've sung.", type: "Music" }
     ]
   },
 
@@ -343,13 +341,26 @@ window.SITE = {
   ],
 
   /* ------------------------------------------------------------------
+     SHUNYAAKAR SOUND — the music division and its collaborators
+     ------------------------------------------------------------------ */
+  sound: {
+    intro: "Songs, scores and sound design written for the story, never pulled from a library. The music and songs of AHAM are made in collaboration with Genvox Studio.",
+    collab: {
+      film: "AHAM",
+      name: "Genvox Studio",
+      founder: "Uday Singh Sisodia",
+      text: "AHAM's soundtrack, from the damru motif to the original song Kalyug Charam, is composed and produced together with Genvox Studio."
+    }
+  },
+
+  /* ------------------------------------------------------------------
      MUSIC — tracks
      src:   "assets/audio/kalyug-charam.mp3" when you have a file
      synth: "damru" plays the built-in damru pattern (no file needed)
      ------------------------------------------------------------------ */
   tracks: [
-    { title: "Kalyug Charam", meta: "Original song for AHAM", status: "Writing", src: "" },
-    { title: "Damru Theme", meta: "AHAM score, motif sketch", status: "Sketch", src: "", synth: "damru" },
-    { title: "The Night's Account", meta: "AHAM score, hunt cue", status: "Planned", src: "" }
+    { title: "Kalyug Charam", meta: "Original song for AHAM, with Genvox Studio", status: "Writing", src: "" },
+    { title: "Damru Theme", meta: "AHAM score, with Genvox Studio", status: "Sketch", src: "", synth: "damru" },
+    { title: "The Night's Account", meta: "AHAM score, hunt cue, with Genvox Studio", status: "Planned", src: "" }
   ]
 };

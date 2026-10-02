@@ -97,7 +97,7 @@ Scroll order, with the key selector and function for each part:
    - The main button reads "Follow the making of AHAM" until a showreel URL exists; then it becomes "Watch the showreel".
 3. **Giant word bands** (`.bands`, `initScrollLinks`). Two huge rows that slide sideways with scroll (`data-speed`).
 4. **Manifesto** (`.manifesto`, 300vh, pinned; `initManifesto`). Giant words light up one by one; `*starred*` words in `SITE.manifesto` get a solid colour block. Signed "Mayank Sharma, founder" in Caveat.
-5. **Studio / worlds** (`#studio`, `renderWorlds`). Four division cards: Films and Music live (solid rani / marigold); VFX and Animation dashed, with "% built" meters.
+5. **Studio / worlds** (`#studio`, `renderWorlds`). Four division cards: Films and Music live (solid rani / marigold); VFX and Animation dashed, showing only "Opening soon" / "In the works". **No percentage meters** (owner's request, Oct 2026).
 6. **Films and the clapperboard** (`#films`, `initClapper`).
    - A full-screen colourful clapper writes itself in (Caveat), claps with flash, shake and sound, the slate's timecode freezes on the clap, and a marigold iris closes to reveal the film board.
    - **While it claps, scroll is locked:** `glideTo` centres the slate, then `Lock.lock()`, and `Lock.unlock()` fires at 3100 ms.
@@ -109,10 +109,11 @@ Scroll order, with the key selector and function for each part:
    - **Stages reel** (`stagesHTML`): Script, Pre-production, Production, Post, Release. Each has a status (done / rolling / next), a script excerpt on a paper page, sticky notes, and media. **Media with an empty `src` is hidden.**
    - **"AHAM, by the numbers"** (`renderNumbers`): solid tiles counting 23, 29, 7, 1, and **0 lighting kits (counts down from 12)**.
    - **"The idea underneath"** (`yugaHTML`, `yugaScroll`, `Realm`, `initRealms`). This is the signature section; see section 6.
-   - **Characters** (`castHTML`), with one "Casting now" line when the call sheet is open.
-   - **Call sheet** (`renderCallsheet`): a paper call sheet of open cast and crew roles. "Apply" pre-fills the contact form.
+   - **Characters** (`castHTML`, `initPeople`): clickable cards (portrait or initials, "View profile"). A card opens the `#person` dialog with a lens-iris `clip-path` reveal from the tapped card, a colour-bar wipe over the film-frame portrait, then the details rise in; previous/next, arrow keys, swipe and Escape work. Profile data: `cast[].photo`, `actor`, `about`.
+   - A production meter on a rolling stage (`stage.progress`, "60% shot").
+7b. **Casting call** (`#casting`, `renderCallsheet`): its own section after the making-of. A paper call sheet for `SITE.callsheet.film` (currently **Nanhi Muskaan**: child artist, female vocalist). "Apply" pre-fills the form with "A role in one of our films".
 8. **Notes from the set** (`#journal`, `renderJournal`). Production-diary cards. On desktop (≥900px) the section pins and the cards move sideways as you scroll down; on phones it's a native swipe row.
-9. **Shunyaakar Sound** (`#music`, `initMusic`). Solid blue section with a live equaliser canvas, a "Play the damru" button, and a tracklist (mp3 from `src`, or `synth: "damru"`).
+9. **Shunyaakar Sound** (`#music`, `renderSound`, `initMusic`). Solid blue section with a collaboration panel (**AHAM's music and songs are made with Genvox Studio, founded by Uday Singh Sisodia**; from `SITE.sound`), a live equaliser canvas, a "Play the damru" button, and a tracklist (mp3 from `src`, or `synth: "damru"`).
 10. **Work with us** (`#services`, `renderServices`). Huge rows that flood with their colour on hover; clicking pre-fills the form's project type.
 11. **Personal portfolio** (`#portfolio`). Solid marigold section; the pinned collage swings in with 3D scroll-scrub (`data-scrub`, `initScrub`) and links to `brand.portfolioUrl`.
 12. **About** (`#about`). Polaroid portrait: `brand.founderPhoto`, or an "MS" monogram until a photo exists. Plus three sticky notes.
@@ -151,8 +152,9 @@ Implementation: `yugaHTML` builds the pinned stage (`.yuga-pin` 520vh, `.yuga-st
 - **Final sequence** (time-based after `Realm.setFinal(true)`, following the script: *"the damru swells, then cuts to silence. Then: मैं।"*):
   1. 0 to 0.9 s: implosion. The halves spin and shrink into a point while light streaks rush inward; `Sound.roll()` plays an accelerating damru.
   2. 0.9 to 1.9 s: **silence and darkness** (`Sound.duck(0)`). A vertical line of light opens like a **third eye**.
-  3. At 1.9 s: ignition. A flash, one bone shockwave, a burst of sparks, `Sound.boom(true)`, and `.yuga-stage.is-lit` is added. The DOM word `.yuga-final-word` (Rozha One, bone, fire glow) rises out of blur, standing inside a **ring of real flames** (the `flames` particles). This echoes the "figure calm inside a ring of fire" from Veer's sketchbook in the script.
-  4. The film tagline fades in underneath (`.yuga-final-line`). The drone returns after about 2.5 s.
+  3. At 1.9 s: **the awakening** (reworked Oct 2026; the owner found the old spark-burst ignition "like a firecracker, childish"). A blade of light tears the full height of the frame and fades; a soft bone flash blooms and decays slowly; one slow thin shockwave and a single heavy, short shake; a gold-and-fire bloom breathes behind the word; long rays turn slowly; and a **yantra inscribes itself** (one circle, dev's gold on the left half and asura's cold blue on the right, an 8-point star, ticks). `Sound.awaken()` plays a sub hit, a low brass-like swell through an opening filter, and a temple bell. **No spark bursts, no flame ring, no confetti.** `.yuga-final-word` (Rozha One, bone) rises from scale 1.6 to 1 over about 3.4 s, with a gold glow on the left and blue on the right (one self, two halves). It's blurred in only above 700px; phones get opacity and transform only.
+  4. The film tagline fades in underneath (`.yuga-final-line`). The drone returns after about 3 s.
+- **Performance (phones):** no live `shadowBlur` (glows are pre-rendered sprites stamped with `drawImage`), particles are batched into a few `fill()` calls by colour and alpha, the vignette is pre-rendered, pixel ratio is capped at 1.25 on small or coarse-pointer screens (1.75 on desktop), and `quality` steps down automatically when frames run long. In an Oct 2026 benchmark at 375×812, frame cost roughly halved (15.6 → 7.1 ms at the heaviest point). Keep it that way: don't reintroduce `shadowBlur` or per-particle `globalAlpha` in the frame loop.
 - **Palette in this section:** black, gold, cold blue, fire orange `#FF6A1F`, blood `#C8472D`. **Never pink, rainbow or confetti here.**
 
 ---
@@ -182,18 +184,19 @@ Boot order is at the bottom of `main.js` (`DOMContentLoaded`). Render functions 
 
 ## 8. `js/content.js` schema (`window.SITE`)
 
-- `brand`: `name`, `founder`, `location`, `email` (**placeholder `hello@shunyaakar.com`, to replace**), `portfolioUrl`, `showreelUrl`, `founderPhoto`, `replyTime`, `timezone`, `socials[]` (**placeholder links, to replace**)
-- `status`: `{ film, stage, detail }`, shown in the hero, call sheet, contact and footer
+- `brand`: `name`, `founder`, `location`, `email` (`hello@shunyaakarstudios.in`), `portfolioUrl`, `showreelUrl`, `founderPhoto`, `replyTime`, `timezone`, `socials[]` (**placeholder links, to replace**)
+- `status`: `{ film, stage, short?, detail }`, shown in the hero (`short`), contact and footer
 - `manifesto`: a string; `*word*` gets a highlight
 - `divisions[]`: `{ name, status: "live"|"soon", tone, text, link?, linkText?, progress? }`
 - `films[]`, each with:
   - `id`, `featured` (only **one** film may be `true`; it gets the Making-of section), `title`, `devanagari`, `year`, `genre`, `status`, `accent`, `accent2`, `poster`
   - `tagline`, `logline`, `note`, `trailer`, `watch[{label,url}]`, `release`, `credits[{role,name}]`, `numbers[{value,from?,label}]`
-  - `stages[{ name, status, when, summary, excerpt?{text,source}, notes[], media[{type:"image"|"video", src, caption}] }]`
+  - `stages[{ name, status, when, progress?, summary, excerpt?{text,source}, notes[], media[{type:"image"|"video", src, caption}] }]` (`progress` = % shot, shown as a meter)
   - `concept{ title, intro, lines[{deva,gloss,gap}], final }`
-  - `cast[{ name, role, note, actor }]`
+  - `cast[{ name, role, note, actor, photo, about }]` (each opens a profile)
 - `journal[]`: `{ tag: Script|Pre-production|Production|Post|Music, date, title, body, image }`
-- `callsheet`: `{ open, film, where, when, roles[{role, who, type: "Cast"|"Crew"}] }`. Set `open:false` to hide it.
+- `callsheet`: `{ open, film, where, when, status?, roles[{role, who, type: "Cast"|"Crew"|"Music"}] }`. `film` must match a film title. Set `open:false` to hide the whole casting section.
+- `sound`: `{ intro, collab: { film, name, founder, text } }` for the Shunyaakar Sound section.
 - `services[]`: `{ title, text, type, tone }`. **`type` must exactly match an `<option>` in the contact form's `<select name="project">` in index.html.**
 - `tracks[]`: `{ title, meta, status, src, synth? }`
 
@@ -211,6 +214,7 @@ Use these; don't invent story details.
   - **Shekhar:** submits Veer's work under his own name, claps his shoulder too hard.
   - **The Old Man:** runs the chai stall and says "Kitne din se rok raha hai, beta." He also delivers the four-yuga speech and "Is yug mein koi avatar nahi utrega baahar se…"
 - **Opening:** Kundanpura railway crossing, the Delhi–Jaipur line, a train that never arrives. **Ending:** the four yuga lines, the damru swells and cuts to silence, then "मैं।", then "उन दिनों रामनगरिया के आसपास हुई घटनाओं का कोई गवाह नहीं मिला। कोई संदिग्ध नहीं। सिर्फ — एक सवाल।" (Not used on the site yet; it is a strong teaser line if wanted.)
+- **Status (Oct 2026):** in **production**, **60% shot**. Pre-production is done. AHAM's music and songs are made **in collaboration with Genvox Studio** (founder **Uday Singh Sisodia**).
 - **Production plan:**
   - 29 scenes mapped to real Jaipur locations (Kundanpura railway crossing, the SKIT campus road, scrubland, construction sites at night, residential corridors); a **seven-Sunday** shoot.
   - Shot on a **Sony a6100 with natural light only, no lighting kit**.
@@ -219,7 +223,7 @@ Use these; don't invent story details.
 - **Other films on the board** (placeholders in `content.js`; ask the owner for real details):
   - **HUMSAYA:** zero-VFX psychological horror
   - **Smriti** (स्मृति): non-linear supernatural mystery set in Uttarakhand
-  - **Nanhni Muskan:** a thalassemia / stem-cell donation awareness drama
+  - **Nanhi Muskaan:** a thalassemia / stem-cell donation awareness drama
 
 ---
 
@@ -239,7 +243,8 @@ Studied: A24, Blumhouse, Yash Raj Films, Somesuch, Nexus Studios, DNEG. Borrowed
 
 ## 11. Deploy checklist (still to do)
 
-1. Replace `brand.email` and `brand.socials` in `content.js`.
+1. Replace `brand.socials` in `content.js` (the email is done).
+1b. Add AHAM cast photos, actor names and short bios (`cast[].photo`, `actor`, `about`).
 2. In `index.html`, change the `og:image` and `twitter:image` meta tags to the **absolute live URL** of `assets/img/share-card.png`.
 3. Deploy on Render with the Blueprint (`render.yaml`) and set `DATABASE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`; delete `ADMIN_PASSWORD` after the first sign-in (see `backend/README.md`). The admin row for the owner's email already exists in `admin_users` without a password.
 4. Add real assets as they exist: stills and storyboards (stage `media`), the founder photo, the AHAM poster, trailer and showreel embed URLs, and mp3 tracks.
@@ -263,7 +268,6 @@ Studied: A24, Blumhouse, Yash Raj Films, Somesuch, Nexus Studios, DNEG. Borrowed
 - **Pinned section heights** control pacing: `.hero` 290vh, `.manifesto` 300vh, `.yuga-pin` 520vh, `.contact-stage` 230vh, and the journal height is computed in JS.
 - **Clapper timings** are in `initClapper() → run()`: write at 80 ms, arm at 1150, clap at 1650, iris at 2150, unlock at 3100, hide at 3350.
 - **Known leftovers you can safely clean up:**
-  - The CSS header comment still says "Light leak"; update it to "flat Rajasthan palette".
   - `initCursor()` in main.js is unused (the cursor was removed).
   - The `.orb`, `.orb-old` and `.dot` CSS in the yugas area is dead (the canvas replaced it).
   - `conceptHTML()` is only used by the film room for non-featured films.

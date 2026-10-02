@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Shunyaakar | A production house from Jaipur</title>
-  <meta name="description" content="Shunyaakar is a production house from Jaipur making films and music from the first page of a script to the final mix. Now in pre-production: AHAM.">
+  <meta name="description" content="Shunyaakar is a production house from Jaipur making films and music from the first page of a script to the final mix. Now shooting: AHAM.">
   <meta name="theme-color" content="#0E0A1C">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Shunyaakar">
   <meta property="og:title" content="Shunyaakar | A production house from Jaipur">
-  <meta property="og:description" content="Films and music, made from zero. Now in pre-production: AHAM.">
+  <meta property="og:description" content="Films and music, made from zero. Now shooting: AHAM.">
   <meta property="og:url" content="https://shunyaakarstudios.in/">
   <meta property="og:image" content="https://shunyaakarstudios.in/assets/img/share-card.png">
   <meta name="twitter:image" content="https://shunyaakarstudios.in/assets/img/share-card.png">
@@ -116,7 +116,7 @@
           <span class="vf-corner bl"></span><span class="vf-corner br"></span>
           <p class="vf-rec"><span class="rec-dot"></span>REC <span class="tc" id="heroTC">01:00:00:00</span></p>
           <p class="vf-loc">Jaipur <span class="js-clock">--:--</span> IST</p>
-          <p class="vf-status"><span class="live-dot"></span><span class="js-status">Now: AHAM, pre-production</span></p>
+          <p class="vf-status"><span class="live-dot"></span><span class="js-status">Now: AHAM, shooting · 60% shot</span></p>
         </div>
 
         <div class="hero-card">
@@ -237,6 +237,12 @@
         <div class="numbers" id="numbers"></div>
         <div class="yugas-main" id="yugas"></div>
         <div class="cast-wrap" id="castWrap"></div>
+      </div>
+    </section>
+
+    <!-- ========== CASTING CALL (call sheet for the next film) ========== -->
+    <section class="section casting" id="casting" aria-label="Casting call">
+      <div class="wrap">
         <div class="callsheet-wrap" id="callsheet"></div>
       </div>
     </section>
@@ -264,7 +270,8 @@
       <div class="wrap music-grid">
         <div>
           <h2 class="h2" id="musicTitle">Shunyaakar Sound</h2>
-          <p class="lead">The music division starts where our films need it most: songs, scores and sound design written for the story, never pulled from a library. First release: the soundtrack of AHAM, built on a damru and heavy drums.</p>
+          <p class="lead" id="soundIntro">Songs, scores and sound design written for the story, never pulled from a library. The music and songs of AHAM are made in collaboration with Genvox Studio.</p>
+          <div class="collab" id="soundCollab"></div>
           <div class="eq-wrap">
             <canvas id="eq" aria-hidden="true"></canvas>
             <button class="damru-btn" id="damruBtn" type="button">
@@ -362,7 +369,7 @@
                 <option>Edit and colour</option>
                 <option>Music or score</option>
                 <option>Photography</option>
-                <option>A role in AHAM (cast or crew)</option>
+                <option>A role in one of our films</option>
                 <option>Something else</option>
               </select>
             </label>
@@ -380,11 +387,11 @@
 
           <div class="contact-links">
             <p class="contact-kicker">Or write directly</p>
-            <a class="contact-mail" id="contactMail" href="mailto:hello@shunyaakar.com">hello@shunyaakar.com</a>
+            <a class="contact-mail" id="contactMail" href="mailto:hello@shunyaakarstudios.in">hello@shunyaakarstudios.in</a>
             <dl class="contact-facts">
               <div><dt>Studio</dt><dd data-bind="brand.location">Jaipur, Rajasthan</dd></div>
               <div><dt>Local time</dt><dd><span class="js-clock">--:--</span> IST</dd></div>
-              <div><dt>Right now</dt><dd class="js-status-long">AHAM, pre-production</dd></div>
+              <div><dt>Right now</dt><dd class="js-status-long">AHAM in production</dd></div>
             </dl>
             <ul class="socials" id="socials"></ul>
           </div>
@@ -422,8 +429,8 @@
           <ul>
             <li data-bind="brand.location">Jaipur, Rajasthan</li>
             <li><span class="js-clock">--:--</span> IST</li>
-            <li class="footer-status"><span class="live-dot"></span><span class="js-status-long">AHAM, pre-production</span></li>
-            <li><a class="js-mail" href="mailto:hello@shunyaakar.com">hello@shunyaakar.com</a></li>
+            <li class="footer-status"><span class="live-dot"></span><span class="js-status-long">AHAM in production</span></li>
+            <li><a class="js-mail" href="mailto:hello@shunyaakarstudios.in">hello@shunyaakarstudios.in</a></li>
           </ul>
         </div>
       </div>
@@ -453,6 +460,16 @@
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
       <div class="reel-frame" id="reelFrame"></div>
+    </div>
+  </div>
+
+  <!-- ========== PERSON PROFILE (people of the featured film) ========== -->
+  <div class="person" id="person" hidden>
+    <div class="person-panel" role="dialog" aria-modal="true" aria-labelledby="personName" tabindex="-1">
+      <button class="icon-btn person-close" id="personClose" type="button" aria-label="Close profile">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <div class="person-body" id="personBody"></div>
     </div>
   </div>
 

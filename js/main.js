@@ -92,6 +92,31 @@
       const ng = c.createGain(); ng.gain.setValueAtTime(big ? .7 : .35, t); ng.gain.exponentialRampToValueAtTime(.001, t + .5);
       n.connect(lp).connect(ng).connect(this.master); n.start(t); n.stop(t + .6);
     },
+    // the awakening: a deep sub hit, a low brass-like swell that opens slowly, and a temple bell
+    awaken() {
+      const c = this.init(); if (!c) return;
+      const t = c.currentTime;
+      const out = c.createGain(); out.gain.value = .9; out.connect(this.master);
+      // sub: felt more than heard
+      const sub = c.createOscillator(); sub.type = "sine";
+      sub.frequency.setValueAtTime(58, t); sub.frequency.exponentialRampToValueAtTime(34, t + 2.4);
+      const sg = c.createGain(); sg.gain.setValueAtTime(.001, t); sg.gain.exponentialRampToValueAtTime(1, t + .04); sg.gain.exponentialRampToValueAtTime(.001, t + 3.2);
+      sub.connect(sg).connect(out); sub.start(t); sub.stop(t + 3.3);
+      // swell: Sa and Pa in low octaves through a filter that slowly opens and closes
+      const lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.Q.value = 4;
+      lp.frequency.setValueAtTime(120, t); lp.frequency.exponentialRampToValueAtTime(1100, t + 1.1); lp.frequency.exponentialRampToValueAtTime(260, t + 5.5);
+      const bg = c.createGain(); bg.gain.setValueAtTime(.001, t); bg.gain.exponentialRampToValueAtTime(.32, t + .25); bg.gain.exponentialRampToValueAtTime(.001, t + 6);
+      lp.connect(bg).connect(out);
+      [55, 55.4, 82.4, 110, 110.6].forEach((fr, i) => {
+        const o = c.createOscillator(); o.type = i % 2 ? "square" : "sawtooth"; o.frequency.value = fr; o.connect(lp); o.start(t); o.stop(t + 6.1);
+      });
+      // bell: inharmonic partials with long tails
+      [[196, .16, 5.5], [275.6, .1, 4.4], [392.4, .07, 3.6], [527.8, .045, 2.8], [700.9, .03, 2.2]].forEach(([fr, v, d]) => {
+        const o = c.createOscillator(); o.type = "sine"; o.frequency.value = fr;
+        const g = c.createGain(); g.gain.setValueAtTime(.001, t + .05); g.gain.exponentialRampToValueAtTime(v, t + .07); g.gain.exponentialRampToValueAtTime(.0005, t + .05 + d);
+        o.connect(g).connect(out); o.start(t + .05); o.stop(t + .1 + d);
+      });
+    },
     roll(dur) {
       const c = this.init(); if (!c) return;
       const start = c.currentTime + .02, end = start + dur; let t = start;
@@ -173,7 +198,7 @@
           <p>${esc(d.text)}</p>
           ${live
             ? `<p class="world-link" style="margin-top:1.2rem">${esc(d.linkText || "Explore")} ${ICON_ARROW}</p>`
-            : `<div class="world-meter" style="margin-top:1.2rem" role="img" aria-label="${esc(d.name)} is ${d.progress || 0}% built"><span style="width:${Number(d.progress) || 0}%"></span></div><p class="world-meter-label">${Number(d.progress) || 0}% built</p>`}
+            : `<p class="world-soon" style="margin-top:1.2rem"><span class="world-soon-dot" aria-hidden="true"></span>In the works</p>`}
         </div>
       </${tag}>`;
     }).join("");
@@ -234,6 +259,7 @@
         <span class="stage-marker" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
         <div class="stage-head"><h3>${esc(s.name)}</h3><span class="stage-badge">${STATUS_LABEL[st]}</span></div>
         ${s.when ? `<p class="stage-when">${esc(s.when)}</p>` : ""}
+        ${s.progress ? `<div class="stage-meter" role="img" aria-label="${Number(s.progress)}% shot"><span style="--p:${clamp(Number(s.progress) / 100)}"></span><b>${Number(s.progress)}% shot</b></div>` : ""}
         ${s.summary ? `<p class="stage-summary">${esc(s.summary)}</p>` : ""}
         ${s.excerpt ? `<blockquote class="excerpt"><p>${esc(s.excerpt.text)}</p>${s.excerpt.source ? `<footer>${esc(s.excerpt.source)}</footer>` : ""}</blockquote>` : ""}
         ${s.notes && s.notes.length ? `<ul class="notes">${s.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
@@ -246,7 +272,8 @@
     const stages = film.stages || [];
     const current = stages.find(s => s.status === "rolling") || stages.find(s => s.status === "next");
     const done = stages.filter(s => s.status === "done").length;
-    const label = current ? `${esc(current.name)} ${current.status === "rolling" ? "in progress" : "up next"}` : "Complete";
+    const pct = current && current.status === "rolling" && current.progress ? `, ${Number(current.progress)}% shot` : "";
+    const label = current ? `${esc(current.name)} ${current.status === "rolling" ? "in progress" : "up next"}${pct}` : "Complete";
     return `<div class="progress">
       <div class="progress-label"><strong>${label}</strong><span>${done} of ${stages.length} stages done</span></div>
       <div class="progress-bar" role="img" aria-label="${done} of ${stages.length} stages done">${stages.map(s => `<span class="is-${esc(s.status)}"></span>`).join("")}</div>
@@ -265,17 +292,27 @@
       ${c.final ? `<p class="yuga-final" lang="hi">${esc(c.final)}</p>` : ""}`;
   }
 
-  function castHTML(film) {
+  const initials = n => String(n || "").replace(/^the\s+/i, "").split(/\s+/).map(w => w[0] || "").join("").slice(0, 2).toUpperCase();
+  function castHTML(film, clickable = true) {
     if (!film.cast || !film.cast.length) return "";
     const casting = S.callsheet && S.callsheet.open && S.callsheet.film === film.title && film.cast.some(c => !c.actor);
     return `<h3 class="cast-title">The people in ${esc(film.title)}</h3>
       ${casting ? `<p class="cast-casting"><span class="live-dot"></span>Casting now. The open roles are on the call sheet below.</p>` : ""}
-      <ul class="cast">${film.cast.map(c => `<li>
-        <p class="cast-name">${esc(c.name)}</p>
-        <p class="cast-role">${esc(c.role || "")}</p>
-        <p class="cast-note">${esc(c.note || "")}</p>
-        ${c.actor ? `<p class="cast-actor">Played by ${esc(c.actor)}</p>` : ""}
-      </li>`).join("")}</ul>`;
+      ${clickable ? `<p class="cast-hint">Tap a card to meet them.</p>` : ""}
+      <ul class="cast${clickable ? " is-clickable" : ""}">${film.cast.map((c, i) => {
+        const inner = `
+        <span class="cast-photo" aria-hidden="true">${c.photo ? `<img src="${esc(c.photo)}" alt="" loading="lazy">` : `<span class="cast-mono">${esc(initials(c.name))}</span>`}</span>
+        <span class="cast-text">
+          <span class="cast-name">${esc(c.name)}</span>
+          <span class="cast-role">${esc(c.role || "")}</span>
+          <span class="cast-note">${esc(c.note || "")}</span>
+          ${c.actor ? `<span class="cast-actor">Played by ${esc(c.actor)}</span>` : ""}
+        </span>
+        ${clickable ? `<span class="cast-open" aria-hidden="true">View profile ${ICON_ARROW}</span>` : ""}`;
+        return `<li style="--i:${i}">${clickable
+          ? `<button class="cast-card" type="button" data-person="${i}" aria-haspopup="dialog" aria-label="Open the profile of ${esc(c.name)}">${inner}</button>`
+          : `<div class="cast-card">${inner}</div>`}</li>`;
+      }).join("")}</ul>`;
   }
 
   function creditsHTML(film) {
@@ -366,7 +403,7 @@
       </div>
       <ol class="reel">${stagesHTML(film)}</ol>
       ${film.concept ? `<div class="yugas">${conceptHTML(film)}</div>` : ""}
-      ${film.cast ? `<div class="cast-wrap">${castHTML(film)}</div>` : ""}`;
+      ${film.cast ? `<div class="cast-wrap">${castHTML(film, false)}</div>` : ""}`;
     showOverlay(room);
     // reveal any yuga lines inside the room straight away
     $$(".yuga, .yuga-final", room).forEach(el => setTimeout(() => el.classList.add("is-in"), 400));
@@ -430,6 +467,122 @@
     $(".reel-panel", reel).setAttribute("aria-label", title);
     if (!$("#room").hidden) $("#room").style.zIndex = 85;
     showOverlay(reel);
+  }
+
+  /* -------------------------------------------------------------------
+     PEOPLE — each card in "The people in AHAM" opens a profile.
+     It opens like a lens iris from the card you tapped; a colour bar
+     wipes across the portrait, then the name and details rise in.
+     ------------------------------------------------------------------- */
+  function initPeople() {
+    const film = (S.films || []).find(f => f.featured);
+    const wrap = $("#castWrap"), modal = $("#person");
+    if (!film || !film.cast || !film.cast.length || !wrap || !modal) return;
+    const panel = $(".person-panel", modal), body = $("#personBody"), n = film.cast.length;
+    const TONES = ["var(--marigold)", "var(--royal)", "var(--rani)", "var(--peacock)", "#FF7A45"];
+    let idx = 0, opener = null, closeT = 0;
+
+    function fill(i) {
+      const c = film.cast[i];
+      const facts = [
+        c.actor ? ["Played by", c.actor] : null,
+        ["Character", c.name],
+        ["Film", `${film.title}${film.devanagari ? ` (${film.devanagari})` : ""}`]
+      ].filter(Boolean);
+      body.style.setProperty("--c", TONES[i % TONES.length]);
+      body.innerHTML = `<div class="person-grid">
+        <figure class="person-photo">
+          <span class="person-frame">${c.photo ? `<img src="${esc(c.photo)}" alt="${esc(c.actor ? `${c.actor} as ${c.name}` : c.name)}">` : `<span class="person-mono" aria-hidden="true">${esc(initials(c.name))}</span>`}</span>
+          <span class="person-wipe" aria-hidden="true"></span>
+          <figcaption>${esc(film.title)} · ${String(i + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")}</figcaption>
+        </figure>
+        <div class="person-info">
+          <p class="person-kicker">The people in ${esc(film.title)}</p>
+          <h2 class="person-name" id="personName">${esc(c.name)}</h2>
+          ${c.role ? `<p class="person-role">${esc(c.role)}</p>` : ""}
+          ${c.note ? `<p class="person-note">${esc(c.note)}</p>` : ""}
+          <dl class="person-facts">${facts.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+          ${c.about ? `<p class="person-about">${esc(c.about)}</p>` : (!c.photo && !c.actor ? `<p class="person-soon">Portrait and cast details coming soon.</p>` : "")}
+          <div class="person-nav">
+            <button class="person-step" type="button" data-pstep="-1" aria-label="Previous: ${esc(film.cast[(i - 1 + n) % n].name)}"><span aria-hidden="true">←</span> ${esc(film.cast[(i - 1 + n) % n].name)}</button>
+            <button class="person-step" type="button" data-pstep="1" aria-label="Next: ${esc(film.cast[(i + 1) % n].name)}">${esc(film.cast[(i + 1) % n].name)} <span aria-hidden="true">→</span></button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // the iris grows from (or shrinks back into) the centre of the card that was tapped
+    function aim(from) {
+      const pr = panel.getBoundingClientRect();
+      let x = pr.width / 2, y = pr.height / 2;
+      if (from) {
+        const r = from.getBoundingClientRect();
+        if (r.bottom > 0 && r.top < innerHeight) { x = r.left + r.width / 2 - pr.left; y = r.top + r.height / 2 - pr.top; }
+      }
+      const far = Math.hypot(Math.max(x, pr.width - x), Math.max(y, pr.height - y));
+      panel.style.setProperty("--ox", `${x}px`); panel.style.setProperty("--oy", `${y}px`); panel.style.setProperty("--or", `${Math.ceil(far) + 2}px`);
+    }
+
+    function open(i, from) {
+      clearTimeout(closeT);
+      idx = i; opener = from || document.activeElement;
+      fill(idx);
+      modal.hidden = false; modal.classList.remove("is-closing");
+      document.body.classList.add("no-scroll");
+      panel.scrollTop = 0;
+      aim(from);
+      requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add("is-open")));
+      setTimeout(() => panel.focus({ preventScroll: true }), 80);
+      if (Sound.enabled && Sound.ctx) Sound.whoosh();
+    }
+
+    function close() {
+      if (modal.hidden || modal.classList.contains("is-closing")) return;
+      const card = $(`[data-person="${idx}"]`, wrap);
+      aim(card);
+      modal.classList.add("is-closing"); modal.classList.remove("is-open");
+      closeT = setTimeout(() => {
+        modal.hidden = true; modal.classList.remove("is-closing");
+        if ($$(".room").every(o => o.hidden)) document.body.classList.remove("no-scroll");
+        const back = card || opener; if (back && back.focus) back.focus({ preventScroll: true });
+      }, REDUCE ? 0 : 640);
+    }
+
+    function step(d) {
+      idx = (idx + d + n) % n;
+      body.classList.remove("is-swap"); void body.offsetWidth;
+      fill(idx); body.classList.add("is-swap");
+      $(`[data-pstep="${d}"]`, body)?.focus({ preventScroll: true });
+    }
+
+    wrap.addEventListener("click", e => {
+      const b = e.target.closest("[data-person]"); if (b) open(Number(b.dataset.person), b);
+    });
+    $("#personClose").addEventListener("click", close);
+    modal.addEventListener("click", e => {
+      if (e.target === modal) close();
+      const s = e.target.closest("[data-pstep]"); if (s) step(Number(s.dataset.pstep));
+    });
+    document.addEventListener("keydown", e => {
+      if (modal.hidden || modal.classList.contains("is-closing")) return;
+      if (e.key === "Escape") { e.preventDefault(); close(); }
+      else if (e.key === "ArrowRight") step(1);
+      else if (e.key === "ArrowLeft") step(-1);
+      else if (e.key === "Tab") {
+        const f = $$("button, a[href]", modal).filter(x => x.offsetParent !== null);
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && (document.activeElement === first || document.activeElement === panel)) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    // swipe between people on phones
+    let sx = 0, sy = 0;
+    panel.addEventListener("touchstart", e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    panel.addEventListener("touchend", e => {
+      const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+    }, { passive: true });
   }
 
   /* -------------------------------------------------------------------
@@ -715,7 +868,7 @@
     });
     // 2) Copy blocks and groups that rise / pop in with a stagger
     $$(".personal-copy, .about-copy, .music-grid > div, .studio-head, .services-head, .footer-grid").forEach(el => el.classList.add("rise"));
-    const watch = $$(".tw, .rise, .stickies, .tracks, .roles, .service-list, .callsheet");
+    const watch = $$(".tw, .rise, .stickies, .tracks, .roles, .service-list, .callsheet, .stage-meter");
     if (REDUCE) { watch.forEach(el => el.classList.add("in")); return; }
     const io = new IntersectionObserver(ens => ens.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } }), { rootMargin: "0px 0px -15% 0px" });
     watch.forEach(el => io.observe(el));
@@ -908,7 +1061,7 @@
     </div>`;
   }
 
-  let yugaGaps = [];
+  let yugaGaps = [], yugaEls = null, yugaIdx = -1;
   function yugaScroll() {
     const pinEl = $("#yugaPin"), stage = $("#yugaStage"); if (!pinEl || !stage) return;
     const r = pinEl.getBoundingClientRect(), total = pinEl.offsetHeight - window.innerHeight;
@@ -920,11 +1073,14 @@
     const pos = clamp(f - .5, 0, n - 1), i0 = Math.floor(pos), i1 = Math.min(n - 1, i0 + 1);
     const g = yugaGaps[i0] + (yugaGaps[i1] - yugaGaps[i0]) * ease(pos - i0);
     Realm.g = g / 100;
+    if (idx === yugaIdx) return; // only touch the DOM when the yuga changes
+    yugaIdx = idx;
     if (Realm.onYuga) Realm.onYuga(Math.min(idx, n));
     Realm.setFinal(idx >= n);
+    yugaEls ??= { slides: $$(".yuga-slide", stage), ticks: $$(".yuga-ticks li", stage) };
     stage.classList.toggle("is-final", idx >= n);
-    $$(".yuga-slide", stage).forEach((s, i) => s.classList.toggle("is-on", i === Math.min(idx, n - 1)));
-    $$(".yuga-ticks li", stage).forEach((t, i) => t.classList.toggle("is-on", i <= idx));
+    yugaEls.slides.forEach((s, i) => s.classList.toggle("is-on", i === Math.min(idx, n - 1)));
+    yugaEls.ticks.forEach((t, i) => t.classList.toggle("is-on", i <= idx));
   }
 
 
@@ -934,6 +1090,13 @@
      Yuga by yuga they pull at each other; at Kaliyug they share one body,
      torn down the middle by a seam of fire. Then, as in the script:
      the damru swells, cuts to silence, a third eye opens, and मैं।
+     The awakening is slow and heavy, not a burst: a blade of light splits
+     the dark, a yantra half gold and half cold blue inscribes itself
+     behind the word, and long rays turn like a temple's lamp.
+
+     Built for phones too: no live shadow blur (glows are pre-rendered
+     sprites), particles drawn in batches, a lower pixel ratio on small
+     screens, and the quality steps down on its own if frames run long.
      ------------------------------------------------------------------- */
   const Realm = {
     g: 0.86, final: false, finalAt: 0, merged: false, lit: false,
@@ -948,58 +1111,94 @@
     const stage = $("#yugaStage"); if (!stage) return;
     const cv = document.createElement("canvas"); cv.className = "realm-canvas"; cv.setAttribute("aria-hidden", "true");
     stage.prepend(cv);
-    const ctx = cv.getContext("2d");
+    const ctx = cv.getContext("2d", { alpha: false });
     const C = { deep: "#07050F", bone: "#F6F0E6", gold: "#FFB224", blue: "#6B7FFF", smoke: "#3A4AC0", fire: "#FF6A1F", blood: "#C8472D" };
     const TAU = Math.PI * 2, rnd = (a, b) => a + Math.random() * (b - a);
+    const small = () => W < 700 || matchMedia("(pointer: coarse)").matches;
     let W = 0, H = 0, dpr = 1, Rc = 100, span = 300, running = false, gs = Realm.g;
-    let smoke = [], embers = [], sparks = [], flames = [], shocks = [], rush = [], jag = [], jagAt = 0, flash = 0, shake = 0;
-    let lastIdx = -1;
+    let smoke = [], smokeGroups = [], embers = [], sparks = [], shocks = [], rush = [], jag = [], jagAt = 0, flash = 0, shake = 0;
+    let lastIdx = -1, quality = 1, slow = 0, lastNow = 0, vig = null;
+    const glows = {};
+
+    /* a soft round glow, rendered once and stamped with drawImage (far cheaper than shadowBlur) */
+    function glow(color, alpha = 1) {
+      const key = color + alpha;
+      if (glows[key]) return glows[key];
+      const s = 128, g = document.createElement("canvas"); g.width = g.height = s;
+      const c = g.getContext("2d"), grd = c.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+      const hex = color.replace("#", ""), [r, gg, b] = [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16));
+      grd.addColorStop(0, `rgba(${r},${gg},${b},${alpha})`); grd.addColorStop(.35, `rgba(${r},${gg},${b},${alpha * .45})`); grd.addColorStop(1, `rgba(${r},${gg},${b},0)`);
+      c.fillStyle = grd; c.fillRect(0, 0, s, s);
+      return (glows[key] = g);
+    }
+    const stamp = (sprite, x, y, r, a = 1) => { ctx.globalAlpha = a; ctx.drawImage(sprite, x - r, y - r, r * 2, r * 2); };
 
     function build() {
       const r = stage.getBoundingClientRect();
-      dpr = Math.min(window.devicePixelRatio || 1, 2); W = r.width; H = r.height;
+      W = r.width; H = r.height;
+      dpr = Math.min(window.devicePixelRatio || 1, small() ? 1.25 : 1.75);
       cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       Rc = Math.min(W, H) * (W < 700 ? .14 : .135);
       span = Math.min(W * .3, 460);
-      smoke = Array.from({ length: W < 700 ? 600 : 1100 }, () => ({
+      smoke = Array.from({ length: small() ? 320 : 900 }, () => ({
         a: rnd(0, TAU), k: Math.pow(Math.random(), .7) * 1.7 + .35, s: rnd(.15, .9) * (Math.random() < .5 ? -1 : 1),
-        w: rnd(.3, 1.4), z: rnd(.8, 2.4), c: Math.random() < .07 ? C.blood : Math.random() < .35 ? C.blue : C.smoke
+        w: [.45, .8, 1.2][Math.floor(Math.random() * 3)], z: rnd(.9, 2.4), c: Math.random() < .07 ? C.blood : Math.random() < .35 ? C.blue : C.smoke
       }));
-      embers = Array.from({ length: W < 700 ? 70 : 130 }, () => newEmber(true));
+      // batch smoke by colour and weight, so each group is one fill() call
+      const map = new Map();
+      smoke.forEach(q => { const k = q.c + q.w; if (!map.has(k)) map.set(k, { c: q.c, w: q.w, items: [] }); map.get(k).items.push(q); });
+      smokeGroups = [...map.values()];
+      embers = Array.from({ length: small() ? 46 : 110 }, () => newEmber(true));
+      vig = makeVig();
     }
     function newEmber(anywhere) {
-      return { x: rnd(0, W), y: anywhere ? rnd(0, H) : H + 10, v: rnd(.15, .7), d: rnd(-.25, .25), z: rnd(.8, 2.2), f: rnd(0, TAU), c: Math.random() < .7 ? C.fire : C.gold };
+      return { x: rnd(0, W), y: anywhere ? rnd(0, H) : H + 10, v: rnd(.15, .7), d: rnd(-.25, .25), z: rnd(.8, 2.2), f: rnd(0, TAU), c: Math.random() < .7 ? C.fire : C.gold, b: Math.random() < .5 };
+    }
+    // the vignette is drawn once per size into its own canvas
+    function makeVig() {
+      const v = document.createElement("canvas"); v.width = Math.max(1, Math.round(W / 2)); v.height = Math.max(1, Math.round(H / 2));
+      const c = v.getContext("2d"), g = c.createRadialGradient(v.width / 2, v.height * .46, Math.min(v.width, v.height) * .3, v.width / 2, v.height * .46, Math.max(v.width, v.height) * .75);
+      g.addColorStop(0, "rgba(7,5,15,0)"); g.addColorStop(1, "rgba(7,5,15,.85)");
+      c.fillStyle = g; c.fillRect(0, 0, v.width, v.height);
+      return v;
     }
 
     /* dev: concentric rings of light points, a lotus, a burning core */
     function drawDev(x, y, R, t, a = 1) {
-      ctx.save(); ctx.translate(x, y); ctx.globalAlpha = a;
+      ctx.save(); ctx.translate(x, y);
       ctx.globalCompositeOperation = "lighter";
+      const shimmer = Math.floor(t * 5);
       [[1.3, 60, .08], [1.62, 84, -.05], [1.95, 110, .035]].forEach(([k, n, sp], ri) => {
         ctx.fillStyle = ri === 1 ? C.bone : C.gold;
-        for (let i = 0; i < n; i++) {
-          const an = i / n * TAU + t * sp, rr = R * k * (1 + .015 * Math.sin(t * 1.2 + ri));
-          const sz = (i % 6 === 0 ? 2.4 : 1.2);
-          ctx.globalAlpha = a * (.35 + .4 * Math.abs(Math.sin(an * 3 + t)));
-          ctx.fillRect(Math.cos(an) * rr - sz / 2, Math.sin(an) * rr - sz / 2, sz, sz);
+        const rr = R * k * (1 + .015 * Math.sin(t * 1.2 + ri));
+        for (let pass = 0; pass < 2; pass++) {
+          ctx.globalAlpha = a * (pass ? .78 : .38); ctx.beginPath();
+          for (let i = 0; i < n; i++) {
+            if (((i + shimmer + ri) % 3 === 0) !== !!pass) continue;
+            const an = i / n * TAU + t * sp, sz = i % 6 === 0 ? 2.4 : 1.2;
+            ctx.rect(Math.cos(an) * rr - sz / 2, Math.sin(an) * rr - sz / 2, sz, sz);
+          }
+          ctx.fill();
         }
       });
-      ctx.globalAlpha = a * .5; ctx.strokeStyle = C.gold; ctx.lineWidth = 1;
+      ctx.globalAlpha = a * .5; ctx.strokeStyle = C.gold; ctx.lineWidth = 1; ctx.beginPath();
       for (let i = 0; i < 24; i++) {
         const an = i / 24 * TAU - t * .02, l0 = R * 1.08, l1 = R * (i % 2 ? 1.22 : 1.45);
-        ctx.beginPath(); ctx.moveTo(Math.cos(an) * l0, Math.sin(an) * l0); ctx.lineTo(Math.cos(an) * l1, Math.sin(an) * l1); ctx.stroke();
+        ctx.moveTo(Math.cos(an) * l0, Math.sin(an) * l0); ctx.lineTo(Math.cos(an) * l1, Math.sin(an) * l1);
       }
-      ctx.save(); ctx.rotate(t * .06); ctx.globalAlpha = a * .9; ctx.lineWidth = 1.4;
+      ctx.stroke();
+      ctx.save(); ctx.rotate(t * .06); ctx.globalAlpha = a * .9; ctx.lineWidth = 1.4; ctx.beginPath();
       for (let i = 0; i < 16; i++) {
-        ctx.rotate(TAU / 16);
-        ctx.beginPath(); ctx.moveTo(R * .42, 0);
-        ctx.quadraticCurveTo(R * .72, R * .2, R * 1.02, 0); ctx.quadraticCurveTo(R * .72, -R * .2, R * .42, 0); ctx.stroke();
+        const an = i / 16 * TAU, c = Math.cos(an), s = Math.sin(an);
+        const P = (u, v) => [u * c - v * s, u * s + v * c];
+        ctx.moveTo(...P(R * .42, 0)); ctx.quadraticCurveTo(...P(R * .72, R * .2), ...P(R * 1.02, 0)); ctx.quadraticCurveTo(...P(R * .72, -R * .2), ...P(R * .42, 0));
       }
-      ctx.restore();
-      ctx.globalAlpha = a; ctx.shadowColor = C.gold; ctx.shadowBlur = 45;
-      ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(0, 0, R * .34 * (1 + .04 * Math.sin(t * 1.6)), 0, TAU); ctx.fill();
-      ctx.shadowBlur = 20; ctx.fillStyle = C.bone; ctx.beginPath(); ctx.arc(0, 0, R * .14, 0, TAU); ctx.fill();
-      ctx.shadowBlur = 0; ctx.strokeStyle = C.gold; ctx.lineWidth = 1; ctx.globalAlpha = a * .7;
+      ctx.stroke(); ctx.restore();
+      stamp(glow(C.gold), 0, 0, R * 1.25, a * .8);
+      ctx.globalAlpha = a; ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(0, 0, R * .34 * (1 + .04 * Math.sin(t * 1.6)), 0, TAU); ctx.fill();
+      stamp(glow(C.bone), 0, 0, R * .4, a * .9);
+      ctx.globalAlpha = a; ctx.fillStyle = C.bone; ctx.beginPath(); ctx.arc(0, 0, R * .14, 0, TAU); ctx.fill();
+      ctx.strokeStyle = C.gold; ctx.lineWidth = 1; ctx.globalAlpha = a * .7;
       ctx.beginPath(); ctx.arc(0, 0, R * .42, 0, TAU); ctx.stroke();
       ctx.restore();
     }
@@ -1007,12 +1206,18 @@
     /* asura: a storm of cold smoke, a fractured crown, a red slit eye */
     function drawAsura(x, y, R, t, a = 1, pull = 0, toward = -1) {
       ctx.save(); ctx.translate(x, y); ctx.globalCompositeOperation = "lighter";
-      for (const q of smoke) {
-        const an = q.a + t * q.s * .35, rr = R * q.k * (1 + .08 * Math.sin(t * 2 + q.a * 5));
-        let px = Math.cos(an) * rr, py = Math.sin(an) * rr * .92;
-        if (pull > 0 && q.k > 1.2) px += toward * pull * R * .9 * (q.k - 1.2);
-        ctx.globalAlpha = a * .75 * q.w; ctx.fillStyle = q.c;
-        ctx.fillRect(px, py, q.z, q.z);
+      const limit = quality;
+      for (const grp of smokeGroups) {
+        ctx.globalAlpha = a * .75 * grp.w; ctx.fillStyle = grp.c; ctx.beginPath();
+        const m = Math.ceil(grp.items.length * limit);
+        for (let i = 0; i < m; i++) {
+          const q = grp.items[i];
+          const an = q.a + t * q.s * .35, rr = R * q.k * (1 + .08 * Math.sin(t * 2 + q.a * 5));
+          let px = Math.cos(an) * rr, py = Math.sin(an) * rr * .92;
+          if (pull > 0 && q.k > 1.2) px += toward * pull * R * .9 * (q.k - 1.2);
+          ctx.rect(px, py, q.z, q.z);
+        }
+        ctx.fill();
       }
       if (t - jagAt > .11) { jagAt = t; jag = Array.from({ length: 44 }, (_, i) => (i % 2 ? rnd(1.42, 1.78) : rnd(1.18, 1.3))); }
       [[1, -.12, 1.8, C.blue], [1.22, .08, 1, C.smoke]].forEach(([sc, sp, lw, col]) => {
@@ -1024,11 +1229,13 @@
       ctx.globalAlpha = a; ctx.fillStyle = "#0B0C22"; ctx.beginPath(); ctx.arc(0, 0, R * .62, 0, TAU); ctx.fill();
       ctx.strokeStyle = C.blue; ctx.lineWidth = 1; ctx.globalAlpha = a * .6; ctx.beginPath(); ctx.arc(0, 0, R * .62, 0, TAU); ctx.stroke();
       const blink = (t % 6.5) > 6.25 ? .08 : 1;
-      ctx.globalAlpha = a; ctx.shadowColor = C.blood; ctx.shadowBlur = 40; ctx.fillStyle = C.blood;
+      ctx.globalCompositeOperation = "lighter";
+      stamp(glow(C.blood), 0, 0, R * .75, a * (.6 + .4 * blink));
+      ctx.globalAlpha = a; ctx.fillStyle = C.blood;
       ctx.beginPath(); ctx.ellipse(0, 0, R * .46, R * .2 * blink, 0, 0, TAU); ctx.fill();
-      ctx.shadowBlur = 18; ctx.fillStyle = C.fire;
+      ctx.fillStyle = C.fire;
       ctx.beginPath(); ctx.ellipse(0, 0, R * .2, R * .17 * blink, 0, 0, TAU); ctx.fill();
-      ctx.shadowBlur = 0; ctx.fillStyle = "#05030A";
+      ctx.globalCompositeOperation = "source-over"; ctx.fillStyle = "#05030A";
       ctx.beginPath(); ctx.ellipse(Math.sin(t * .6) * R * .05, 0, R * .035, R * .15 * blink, 0, 0, TAU); ctx.fill();
       ctx.restore();
     }
@@ -1037,45 +1244,99 @@
     function strands(x1, x2, y, R, t, k) {
       if (k <= 0) return;
       ctx.save(); ctx.globalCompositeOperation = "lighter";
+      const per = small() ? 16 : 26;
       for (let s = 0; s < 7; s++) {
-        const off = (s - 3) * R * .22, bend = Math.sin(t * .9 + s) * R * .5;
-        for (let i = 0; i < 26; i++) {
-          const u = ((i / 26) + t * .18 + s * .13) % 1;
-          const fromDev = s % 2 === 0;
-          const uu = fromDev ? u : 1 - u;
-          const px = x1 + (x2 - x1) * uu, py = y + off * (1 - Math.abs(uu - .5) * 1.2) + Math.sin(uu * Math.PI) * bend;
-          ctx.globalAlpha = k * .75 * Math.sin(u * Math.PI);
-          ctx.fillStyle = fromDev ? C.gold : C.blue;
-          ctx.fillRect(px, py, 1.8, 1.8);
+        const off = (s - 3) * R * .22, bend = Math.sin(t * .9 + s) * R * .5, fromDev = s % 2 === 0;
+        ctx.fillStyle = fromDev ? C.gold : C.blue;
+        for (let band = 0; band < 2; band++) {
+          ctx.globalAlpha = k * (band ? .7 : .3); ctx.beginPath();
+          for (let i = 0; i < per; i++) {
+            const u = ((i / per) + t * .18 + s * .13) % 1, bright = Math.sin(u * Math.PI) > .6;
+            if (bright !== !!band) continue;
+            const uu = fromDev ? u : 1 - u;
+            ctx.rect(x1 + (x2 - x1) * uu, y + off * (1 - Math.abs(uu - .5) * 1.2) + Math.sin(uu * Math.PI) * bend, 1.8, 1.8);
+          }
+          ctx.fill();
         }
       }
       ctx.restore();
     }
 
     function seam(cx, cy, R, t) {
-      ctx.save(); ctx.globalCompositeOperation = "lighter";
-      ctx.shadowColor = C.fire; ctx.shadowBlur = 28; ctx.strokeStyle = C.fire; ctx.lineWidth = 2.4;
-      ctx.beginPath();
-      for (let i = 0; i <= 40; i++) {
-        const yy = cy - R * 2.2 + i / 40 * R * 4.4;
-        const xx = cx + Math.sin(i * 1.7 + t * 9) * 2.5 + (Math.random() - .5) * 3;
-        i ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy);
-      }
-      ctx.stroke(); ctx.restore();
-      if (Math.random() < .7) sparks.push({ x: cx + rnd(-3, 3), y: cy + rnd(-R * 2, R * 2), vx: rnd(-2.4, 2.4), vy: rnd(-1.6, .4), life: 1, c: Math.random() < .5 ? C.fire : C.gold });
+      ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.strokeStyle = C.fire;
+      const pts = [];
+      for (let i = 0; i <= 40; i++) pts.push([cx + Math.sin(i * 1.7 + t * 9) * 2.5 + (Math.random() - .5) * 3, cy - R * 2.2 + i / 40 * R * 4.4]);
+      [[12, .12], [5, .35], [2, 1]].forEach(([lw, al]) => {
+        ctx.lineWidth = lw; ctx.globalAlpha = al; ctx.beginPath();
+        pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.stroke();
+      });
+      ctx.restore();
+      if (sparks.length < 160 * quality && Math.random() < .7) sparks.push({ x: cx + rnd(-3, 3), y: cy + rnd(-R * 2, R * 2), vx: rnd(-2.4, 2.4), vy: rnd(-1.6, .4), life: 1, c: Math.random() < .5 ? C.fire : C.gold });
     }
 
-    function shock(x, y, max, w) { shocks.push({ x, y, t0: performance.now(), dur: 1500, max, w }); }
+    function shock(x, y, max, w, dur = 1500) { shocks.push({ x, y, t0: performance.now(), dur, max, w }); }
+
+    /* the awakening: rays, a self-inscribing yantra (dev's gold on the left, asura's blue on
+       the right, one circle), and the blade of light that split the dark */
+    function awakening(cx, cy, t, L) {
+      const big = Math.min(W, H);
+      ctx.save(); ctx.globalCompositeOperation = "lighter";
+      // 1. the blade: the third eye tears open the full height of the frame, then fades
+      if (L < 1.4) {
+        const k = clamp(L / .18), fade = 1 - clamp((L - .25) / 1.15);
+        const h = H * ease(k), w = 2 + 10 * (1 - k) + 26 * Math.max(0, .3 - L);
+        ctx.globalAlpha = .9 * fade; ctx.fillStyle = C.bone; ctx.fillRect(cx - w / 2, cy - h / 2, w, h);
+        stamp(glow(C.fire), cx, cy, big * .5 * k, .5 * fade);
+      }
+      // 2. a slow bloom of light behind the word, breathing
+      const bloom = ease(clamp(L / 1.6)) * (.9 + .1 * Math.sin(t * 1.3));
+      stamp(glow(C.gold), cx, cy, big * .62, .42 * bloom);
+      stamp(glow(C.fire), cx, cy, big * .32, .35 * bloom);
+      // 3. long rays, turning like a lamp in a dark temple
+      const rays = small() ? 10 : 16, rl = Math.hypot(W, H) * .75, rin = ease(clamp((L - .4) / 2));
+      for (let i = 0; i < rays; i++) {
+        const an = i / rays * TAU + L * .035, wid = (i % 2 ? .018 : .032);
+        ctx.globalAlpha = rin * (i % 2 ? .05 : .085); ctx.fillStyle = i % 2 ? C.bone : C.gold;
+        ctx.beginPath(); ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(an - wid) * rl, cy + Math.sin(an - wid) * rl); ctx.lineTo(cx + Math.cos(an + wid) * rl, cy + Math.sin(an + wid) * rl);
+        ctx.closePath(); ctx.fill();
+      }
+      // 4. the yantra inscribes itself, stroke by stroke
+      const p = ease(clamp((L - .3) / 2.4)), R1 = big * .34, R2 = big * .38, rot = L * .025; // starts gold-left (dev), blue-right (asura)
+      ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot); ctx.lineCap = "round";
+      ctx.lineWidth = 2; ctx.globalAlpha = .7;
+      ctx.strokeStyle = C.gold; ctx.beginPath(); ctx.arc(0, 0, R1, Math.PI / 2, Math.PI / 2 + Math.PI * p); ctx.stroke();
+      ctx.strokeStyle = C.blue; ctx.beginPath(); ctx.arc(0, 0, R1, Math.PI / 2, Math.PI / 2 - Math.PI * p, true); ctx.stroke();
+      ctx.lineWidth = 1; ctx.globalAlpha = .35 * p; ctx.strokeStyle = C.bone; ctx.beginPath(); ctx.arc(0, 0, R2, 0, TAU * p); ctx.stroke();
+      const star = clamp((p - .35) / .65);
+      if (star > 0) {
+        ctx.globalAlpha = .4 * star; ctx.strokeStyle = C.gold; ctx.lineWidth = 1.1;
+        [0, Math.PI / 4].forEach(off => {
+          ctx.beginPath();
+          for (let i = 0; i <= 4; i++) {
+            const an = off + i * Math.PI / 2, rr = R1 * .97 * (i / 4 <= star ? 1 : 0);
+            if (!rr) break;
+            i ? ctx.lineTo(Math.cos(an) * rr, Math.sin(an) * rr) : ctx.moveTo(Math.cos(an) * rr, Math.sin(an) * rr);
+          }
+          ctx.stroke();
+        });
+        ctx.globalAlpha = .45 * star; ctx.beginPath();
+        for (let i = 0; i < 48; i++) {
+          const an = i / 48 * TAU, l = i % 4 === 0 ? 12 : 5;
+          ctx.moveTo(Math.cos(an) * R2, Math.sin(an) * R2); ctx.lineTo(Math.cos(an) * (R2 + l), Math.sin(an) * (R2 + l));
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+      ctx.restore();
+    }
 
     Realm.onFinal = on => {
+      Realm.lit = false; stage.classList.remove("is-lit");
       if (on) {
-        Realm.lit = false; stage.classList.remove("is-lit"); flames = [];
-        rush = Array.from({ length: 260 }, () => { const an = rnd(0, TAU), r = rnd(Math.min(W, H) * .25, Math.max(W, H) * .8); return { an, r, v: rnd(.02, .05), c: Math.random() < .5 ? C.gold : C.blue }; });
+        rush = Array.from({ length: small() ? 120 : 220 }, () => { const an = rnd(0, TAU), r = rnd(Math.min(W, H) * .25, Math.max(W, H) * .8); return { an, r, c: Math.random() < .5 ? C.gold : C.blue }; });
         if (Sound.enabled && Sound.ctx) { Sound.roll(1.1); Sound.duck(0, 1.2); }
-      } else {
-        Realm.lit = false; stage.classList.remove("is-lit");
-        if (Sound.enabled && Sound.ctx) Sound.duck(.05, 1.5);
-      }
+      } else if (Sound.enabled && Sound.ctx) Sound.duck(.05, 1.5);
     };
 
     // a damru beat each time a new yuga arrives, heavier as the realms close in
@@ -1089,30 +1350,41 @@
 
     function frame(now) {
       if (!running) return;
+      // if frames keep running long (a busy phone), draw fewer particles; recover when it's easy
+      const dt = lastNow ? now - lastNow : 16; lastNow = now;
+      if (dt > 24) { if (++slow > 20 && quality > .45) { quality -= .15; slow = 0; } } else if (dt < 18 && slow > -240) { if (--slow < -240 && quality < 1) { quality = Math.min(1, quality + .1); slow = 0; } }
       const t = now / 1000;
-      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
       ctx.fillStyle = C.deep; ctx.fillRect(0, 0, W, H);
       gs += (Realm.g - gs) * .07;
       const cx = W / 2, cy = H * .46;
       const e = Realm.final ? (now - Realm.finalAt) / 1000 : 0;
       ctx.save();
-      if (shake > .2) { ctx.translate(rnd(-shake, shake), rnd(-shake, shake)); shake *= .9; }
+      if (shake > .2) { ctx.translate(rnd(-shake, shake), rnd(-shake, shake)); shake *= .88; }
 
       // ash and embers rise through everything (they vanish in the silence)
       const silent = Realm.final && e > .9 && e < 1.9;
-      const heat = Realm.final && e > 1.9 ? 2.2 : 1 + (1 - gs) * .8;
+      const heat = Realm.final && e > 1.9 ? 1.25 : 1 + (1 - gs) * .8;
       if (!silent) {
         ctx.globalCompositeOperation = "lighter";
-        for (const m of embers) {
-          m.y -= m.v * heat; m.x += m.d + Math.sin(t + m.f) * .2; m.f += .02;
-          if (m.y < -10) Object.assign(m, newEmber(false));
-          ctx.globalAlpha = (.25 + .45 * Math.abs(Math.sin(t * 2 + m.f))) * Math.min(1, heat * .6);
-          ctx.fillStyle = m.c; ctx.fillRect(m.x, m.y, m.z, m.z);
+        const m = Math.ceil(embers.length * quality);
+        for (let i = 0; i < m; i++) {
+          const em = embers[i];
+          em.y -= em.v * heat; em.x += em.d + Math.sin(t + em.f) * .2; em.f += .02;
+          if (em.y < -10) Object.assign(em, newEmber(false));
+        }
+        for (let pass = 0; pass < 2; pass++) {
+          ctx.globalAlpha = (pass ? .62 : .3) * Math.min(1, heat * .6);
+          for (const col of [C.fire, C.gold]) {
+            ctx.fillStyle = col; ctx.beginPath();
+            for (let i = 0; i < m; i++) { const em = embers[i]; if (em.c === col && em.b === !!pass) ctx.rect(em.x, em.y, em.z, em.z); }
+            ctx.fill();
+          }
         }
       }
 
       if (!Realm.final) {
-        if (!Realm.merged && gs < .04) { Realm.merged = true; shock(cx, cy, Math.max(W, H) * .6, 3); shake = 10; flash = .35; if (Sound.enabled && Sound.ctx) Sound.boom(false); }
+        if (!Realm.merged && gs < .04) { Realm.merged = true; shock(cx, cy, Math.max(W, H) * .6, 3); shake = 8; flash = .3; if (Sound.enabled && Sound.ctx) Sound.boom(false); }
         if (Realm.merged && gs > .12) Realm.merged = false;
         const R = Rc * (1 + (1 - gs) * .25), gap = gs * span, close = clamp((.62 - gs) / .55);
         if (gs > .03) {
@@ -1132,77 +1404,61 @@
         ctx.save(); ctx.beginPath(); ctx.rect(cx, 0, W - cx, H); ctx.clip(); drawAsura(cx, cy, Rc * 1.3, t); ctx.restore();
         ctx.restore();
         ctx.globalCompositeOperation = "lighter"; ctx.lineWidth = 1.2;
-        for (const q of rush) {
-          const r0 = q.r * (1 - k), r1 = r0 + 30 + 120 * k;
-          ctx.globalAlpha = .6 * (1 - k * .5); ctx.strokeStyle = q.c;
-          ctx.beginPath(); ctx.moveTo(cx + Math.cos(q.an) * r1, cy + Math.sin(q.an) * r1); ctx.lineTo(cx + Math.cos(q.an) * r0, cy + Math.sin(q.an) * r0); ctx.stroke();
+        for (const col of [C.gold, C.blue]) {
+          ctx.globalAlpha = .6 * (1 - k * .5); ctx.strokeStyle = col; ctx.beginPath();
+          for (const q of rush) {
+            if (q.c !== col) continue;
+            const r0 = q.r * (1 - k), r1 = r0 + 30 + 120 * k;
+            ctx.moveTo(cx + Math.cos(q.an) * r1, cy + Math.sin(q.an) * r1); ctx.lineTo(cx + Math.cos(q.an) * r0, cy + Math.sin(q.an) * r0);
+          }
+          ctx.stroke();
         }
       } else if (e < 1.9) {
         // silence, then a third eye: a thin vertical line of light slowly opening
-        const k = clamp((e - 1.05) / .85), hgt = H * .34 * ease(k), wid = 1.5 + Math.pow(k, 3) * H * .05;
-        ctx.globalCompositeOperation = "lighter"; ctx.shadowColor = C.fire; ctx.shadowBlur = 30 + 60 * k;
-        ctx.fillStyle = k > .7 ? C.fire : C.bone; ctx.globalAlpha = .9;
-        ctx.beginPath(); ctx.ellipse(cx, cy, wid, hgt / 2, 0, 0, TAU); ctx.fill();
-        ctx.shadowBlur = 0; ctx.fillStyle = C.bone; ctx.beginPath(); ctx.ellipse(cx, cy, Math.max(1, wid * .35), hgt / 2 * .9, 0, 0, TAU); ctx.fill();
+        const k = clamp((e - 1.05) / .85), hgt = H * .34 * ease(k), wid = 1.5 + Math.pow(k, 3) * H * .03;
+        ctx.globalCompositeOperation = "lighter";
+        stamp(glow(C.fire), cx, cy, 40 + hgt * .6, .35 + .5 * k);
+        ctx.globalAlpha = .95; ctx.fillStyle = k > .7 ? C.fire : C.bone;
+        ctx.beginPath(); ctx.ellipse(cx, cy, wid, Math.max(1, hgt / 2), 0, 0, TAU); ctx.fill();
+        ctx.fillStyle = C.bone; ctx.beginPath(); ctx.ellipse(cx, cy, Math.max(1, wid * .35), Math.max(1, hgt / 2 * .9), 0, 0, TAU); ctx.fill();
       } else {
         if (!Realm.lit) {
           Realm.lit = true; stage.classList.add("is-lit");
-          flash = .6; shake = 16; shock(cx, cy, Math.hypot(W, H) * .7, 5);
-          for (let i = 0; i < 260; i++) { const an = rnd(0, TAU), v = rnd(2, 12); sparks.push({ x: cx, y: cy, vx: Math.cos(an) * v, vy: Math.sin(an) * v, life: 1, c: Math.random() < .6 ? C.fire : C.gold }); }
-          if (Sound.enabled && Sound.ctx) { Sound.boom(true); setTimeout(() => Sound.duck(.05, 3), 2500); }
+          flash = .42; shake = 6; shock(cx, cy, Math.hypot(W, H) * .7, 2.5, 2600);
+          if (Sound.enabled && Sound.ctx) { Sound.awaken(); setTimeout(() => Sound.duck(.05, 4), 3200); }
         }
-        // the ring of fire the word stands in, like the figure in Veer's sketchbook
-        const Rf = Math.min(W, H) * .32, grow = ease(clamp((e - 1.9) / 1.4));
-        ctx.globalCompositeOperation = "lighter";
-        ctx.shadowColor = C.fire; ctx.shadowBlur = 24; ctx.strokeStyle = C.fire; ctx.lineWidth = 2 + Math.sin(t * 9) * .6;
-        ctx.globalAlpha = .75 * grow; ctx.beginPath(); ctx.arc(cx, cy, Rf * grow, 0, TAU); ctx.stroke(); ctx.shadowBlur = 0;
-        const born = Math.round(26 * grow);
-        for (let i = 0; i < born; i++) {
-          const an = rnd(0, TAU), r = Rf * grow + rnd(-4, 4);
-          flames.push({ x: cx + Math.cos(an) * r, y: cy + Math.sin(an) * r, vx: Math.cos(an) * rnd(.2, .9), vy: Math.sin(an) * rnd(.2, .9) - rnd(.6, 1.8), life: 1, s: rnd(2, 5) });
-        }
+        awakening(cx, cy, t, e - 1.9);
       }
 
       // shockwaves: single thin bone rings
       ctx.globalCompositeOperation = "lighter";
       shocks = shocks.filter(sk => {
         const k = (now - sk.t0) / sk.dur; if (k > 1) return false;
-        ctx.globalAlpha = (1 - k) * .9; ctx.strokeStyle = C.bone; ctx.lineWidth = sk.w * (1 - k) + .5;
+        ctx.globalAlpha = (1 - k) * .8; ctx.strokeStyle = C.bone; ctx.lineWidth = sk.w * (1 - k) + .5;
         ctx.beginPath(); ctx.arc(sk.x, sk.y, 10 + ease(k) * sk.max, 0, TAU); ctx.stroke();
         return true;
       });
-      flames = flames.filter(f => {
-        f.x += f.vx; f.y += f.vy; f.vy -= .015; f.life -= .022; f.s *= .985;
-        if (f.life <= 0) return false;
-        ctx.globalAlpha = f.life * .8; ctx.fillStyle = f.life > .7 ? C.gold : f.life > .35 ? C.fire : C.blood;
-        ctx.beginPath(); ctx.arc(f.x, f.y, f.s * (.4 + f.life * .6), 0, TAU); ctx.fill();
-        return true;
-      });
       sparks = sparks.filter(sp => {
-        sp.x += sp.vx; sp.y += sp.vy; sp.vx *= .965; sp.vy = sp.vy * .965 - .03; sp.life -= .014;
+        sp.x += sp.vx; sp.y += sp.vy; sp.vx *= .965; sp.vy = sp.vy * .965 - .03; sp.life -= .016;
         if (sp.life <= 0) return false;
         ctx.globalAlpha = sp.life; ctx.fillStyle = sp.c; ctx.fillRect(sp.x, sp.y, 2, 2);
         return true;
       });
       ctx.restore();
       ctx.globalCompositeOperation = "source-over";
-      if (flash > 0) { ctx.globalAlpha = flash; ctx.fillStyle = C.bone; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; flash *= .86; if (flash < .01) flash = 0; }
+      // the flash is a slow bloom of light, not a pop
+      if (flash > 0) { ctx.globalAlpha = flash; ctx.fillStyle = C.bone; ctx.fillRect(0, 0, W, H); flash *= .93; if (flash < .01) flash = 0; }
       // vignette: the edges fall into darkness
-      ctx.globalAlpha = 1; ctx.fillStyle = vig || (vig = makeVig()); ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = 1; ctx.drawImage(vig, 0, 0, W, H);
       requestAnimationFrame(frame);
-    }
-    let vig = null;
-    function makeVig() {
-      const g = ctx.createRadialGradient(W / 2, H * .46, Math.min(W, H) * .3, W / 2, H * .46, Math.max(W, H) * .75);
-      g.addColorStop(0, "rgba(7,5,15,0)"); g.addColorStop(1, "rgba(7,5,15,.85)");
-      return g;
     }
 
     build();
-    window.addEventListener("resize", () => { build(); vig = null; });
+    let rT = 0;
+    window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(build, 150); });
     if (REDUCE) { running = true; frame(performance.now()); running = false; return; }
     new IntersectionObserver(([en]) => {
-      if (en.isIntersecting && !running) { running = true; requestAnimationFrame(frame); }
+      if (en.isIntersecting && !running) { running = true; lastNow = 0; requestAnimationFrame(frame); }
       if (!en.isIntersecting) running = false;
     }).observe(stage);
   }
@@ -1210,6 +1466,18 @@
   /* -------------------------------------------------------------------
      MUSIC — equalizer + tracks + damru
      ------------------------------------------------------------------- */
+  function renderSound() {
+    const snd = S.sound; if (!snd) return;
+    if (snd.intro && $("#soundIntro")) $("#soundIntro").textContent = snd.intro;
+    const box = $("#soundCollab"), c = snd.collab; if (!box) return;
+    if (!c || !c.name) { box.hidden = true; return; }
+    box.innerHTML = `
+      <p class="collab-kicker">${c.film ? `The music of ${esc(c.film)}` : "In collaboration"}</p>
+      <p class="collab-lockup"><span>Shunyaakar Sound</span><span class="collab-x" aria-label="with">×</span><span>${esc(c.name)}</span></p>
+      ${c.founder ? `<p class="collab-founder"><span>${esc(c.name)}, founded by</span> <strong>${esc(c.founder)}</strong></p>` : ""}
+      ${c.text ? `<p class="collab-text">${esc(c.text)}</p>` : ""}`;
+  }
+
   function initMusic() {
     const cv = $("#eq"), tracksEl = $("#tracks");
     let kick = 0; // extra energy from damru hits
@@ -1319,7 +1587,7 @@
   function initStatus() {
     const st = S.status || {};
     if (st.film) {
-      $$(".js-status").forEach(el => { el.textContent = `Now: ${st.film}, ${st.stage.toLowerCase()}`; });
+      $$(".js-status").forEach(el => { el.textContent = `Now: ${st.short || `${st.film}, ${st.stage.toLowerCase()}`}`; });
       $$(".js-stage").forEach(el => { el.textContent = st.stage; });
       $$(".js-status-long").forEach(el => { el.textContent = `${st.film} in ${st.stage.toLowerCase()}${st.detail ? ". " + st.detail : ""}`; });
     }
@@ -1399,15 +1667,16 @@
   function renderCallsheet() {
     const el = $("#callsheet"), c = S.callsheet;
     if (!el) return;
-    if (!c || !c.open || !c.roles || !c.roles.length) { el.hidden = true; return; }
+    if (!c || !c.open || !c.roles || !c.roles.length) { el.hidden = true; const sec = $("#casting"); if (sec) sec.hidden = true; return; }
+    const film = (S.films || []).find(f => f.title === c.film);
     el.innerHTML = `<div class="callsheet">
       <div class="cs-head">
-        <p class="cs-kicker">Call sheet</p>
+        <p class="cs-kicker">Call sheet${film && film.genre ? ` · ${esc(film.genre)}` : ""}</p>
         <h3 class="cs-title">${esc(c.film)}: open roles</h3>
         <dl class="cs-meta">
           <div><dt>Where</dt><dd>${esc(c.where || "")}</dd></div>
           <div><dt>When</dt><dd>${esc(c.when || "")}</dd></div>
-          <div><dt>Status</dt><dd class="js-stage"></dd></div>
+          <div><dt>Status</dt><dd>${esc(c.status || (film && film.status) || "Casting")}</dd></div>
         </dl>
       </div>
       <table class="cs-table">
@@ -1418,11 +1687,12 @@
           <td><button class="cs-apply" type="button" data-apply="${esc(r.role)}">Apply</button></td>
         </tr>`).join("")}</tbody>
       </table>
-      <p class="cs-foot">Every role on ${esc(c.film)} is credited on screen. Tell me a little about you and send a link to anything you've made or acted in.</p>
+      ${film && film.logline ? `<p class="cs-logline">${esc(film.logline)}</p>` : ""}
+      <p class="cs-foot">Every role on ${esc(c.film)} is credited on screen. Tell me a little about you and send a link to anything you've made, acted in or sung.</p>
     </div>`;
     el.addEventListener("click", e => {
       const b = e.target.closest("[data-apply]"); if (!b) return;
-      prefillContact("A role in AHAM (cast or crew)", `I'd like to be considered for ${b.dataset.apply} in ${c.film}.\n\nAbout me: `);
+      prefillContact("A role in one of our films", `I'd like to be considered for ${b.dataset.apply} in ${c.film}.\n\nAbout me: `);
     });
   }
 
@@ -1703,12 +1973,14 @@
     renderFilms();
     renderMaking();
     renderCallsheet();
+    renderSound();
     renderJournal();
     renderServices();
     initFooterMark();
     initStatus();
     initManifesto();
     initOverlays();
+    initPeople();
     initFilmActions();
     initForms();
     initNav();
