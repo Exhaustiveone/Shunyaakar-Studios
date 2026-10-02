@@ -1503,7 +1503,12 @@
     // Both forms post JSON to the site's own API (netlify/functions). An error the server
     // explains (a bad email, too many messages) is "told"; anything else means the API
     // isn't reachable (e.g. Live Server on localhost), so we fall back.
-    const send = form => fetch(form.getAttribute("action"), {
+    // Same host as the backend (Render, or the backend running locally): relative /api/… URLs.
+    // Any other public host (e.g. a static copy of the site): post to SITE.brand.apiUrl.
+    const api = ((S.brand && S.brand.apiUrl) || "").replace(/\/+$/, "");
+    const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    const base = api && !local && location.origin !== api ? api : "";
+    const send = form => fetch(base + form.getAttribute("action"), {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(Object.fromEntries(new FormData(form)))

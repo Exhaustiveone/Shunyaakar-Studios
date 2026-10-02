@@ -60,7 +60,7 @@ async function handle(req, res) {
       const message = status >= 500 ? "Something went wrong on our side. Please try again." : err.message;
       if (res.headersSent) res.destroy();
       else if (!wantsJson(req) && req.method === "POST") sendPage(res, status, "That didn't go through", message); // a form posted without JavaScript
-      else sendJson(res, status, { ok: false, error: message }, err.headers);
+      else sendJson(res, status, { ok: false, error: message }, { ...pub.corsFor(req, pathname), ...err.headers }); // CORS so allowed sites can read the error
     }
     if (pathname !== "/api/health") console.log(`${req.method} ${pathname} ${res.statusCode} ${Date.now() - started}ms`);
     return;

@@ -20,6 +20,7 @@ window.SITE = {
     location: "Jaipur, Rajasthan",
     email: "hello@shunyaakar.com",            // ← replace with your real email
     portfolioUrl: "https://shunyaakar.netlify.app", // ← your personal portfolio
+    apiUrl: "https://shunyaakar-studios.onrender.com",   // ← the backend (Render). Forms post here when the site is opened from another host.
     showreelUrl: "",                          // ← YouTube embed link when ready
     founderPhoto: "",                         // ← e.g. "assets/img/mayank.jpg"
     replyTime: "within two days",

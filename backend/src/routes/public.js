@@ -60,6 +60,9 @@ export async function subscribe(req, res) {
   return done();
 }
 
+// CORS headers for error replies on the two form endpoints
+export const corsFor = (req, pathname) => /^\/api\/(contact|subscribe)$/.test(pathname) ? corsHeaders(req) : {};
+
 // OPTIONS preflight for the two form endpoints (only matters if ALLOWED_ORIGINS is used)
 export function preflight(req, res) {
   const headers = corsHeaders(req);

@@ -407,6 +407,10 @@
   const LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || location.hostname.endsWith(".localhost");
   const loadScript = src => new Promise((ok, no) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = no; document.head.append(s); });
 
+  // The desk only works on the backend's own address (the sign-in cookie is tied to it).
+  const DESK_HOST = "https://shunyaakar-studios.onrender.com";
+  if (!LOCAL && location.origin !== DESK_HOST) { location.replace(`${DESK_HOST}/desk/${location.hash}`); return; }
+
   (async () => {
     try {
       await request("GET", "/api/auth/me");
