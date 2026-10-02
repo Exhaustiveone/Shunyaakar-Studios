@@ -42,6 +42,14 @@ export const config = Object.freeze({
   sessionHours: int("SESSION_HOURS", 72),
   // Extra origins allowed to POST to the public form endpoints (comma separated), e.g. an old static host.
   allowedOrigins: env("ALLOWED_ORIGINS").split(",").map(s => s.trim().replace(/\/+$/, "")).filter(Boolean),
+  // Outgoing email for desk replies (SMTP). For Gmail: SMTP_HOST=smtp.gmail.com, SMTP_PORT=465,
+  // SMTP_USER=your Gmail address, SMTP_PASS=a 16-character App Password (Google Account → Security).
+  smtpHost: env("SMTP_HOST"),
+  smtpPort: int("SMTP_PORT", 465),
+  smtpUser: env("SMTP_USER"),
+  smtpPass: (process.env.SMTP_PASS || "").replace(/\s+/g, ""), // App Passwords are often pasted with spaces
+  mailFrom: env("MAIL_FROM"),          // e.g. "Mayank Sharma | Shunyaakar <you@gmail.com>"; defaults to SMTP_USER
+  mailReplyTo: env("MAIL_REPLY_TO"),   // where client answers go; defaults to the sender
   trustProxy: bool("TRUST_PROXY", production),
   // true when served over HTTPS (Render): Secure cookies, HSTS, upgrade-insecure-requests
   cookieSecure: bool("COOKIE_SECURE", production)

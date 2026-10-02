@@ -70,13 +70,21 @@ window.DeskDemo = (() => {
       case "GET /api/desk/overview":
         return copy({ ok: true, me: EMAIL,
           enquiries: [...db.enquiries].sort((a, b) => b.created_at.localeCompare(a.created_at)),
-          subscribers: [...db.subscribers].sort((a, b) => b.created_at.localeCompare(a.created_at)) });
+          subscribers: [...db.subscribers].sort((a, b) => b.created_at.localeCompare(a.created_at)),
+          replies: db.replies || [], mail: { enabled: true, from: "Shunyaakar <demo@shunyaakar.test>" } });
       case "PATCH /api/desk/enquiries/:id": {
         const e = db.enquiries.find(x => x.id === rid);
         if (!e) throw fail(404, "That enquiry is gone.");
         if (body.status !== undefined) { e.status = body.status; if (body.status === "replied") e.replied_at = new Date().toISOString(); }
         if (body.notes !== undefined) e.notes = String(body.notes).trim() || null;
         save(); return copy({ ok: true, enquiry: e });
+      }
+      case "POST /api/desk/enquiries/:id/reply": {
+        const e = db.enquiries.find(x => x.id === rid);
+        if (!e) throw fail(404, "That enquiry is gone.");
+        const reply = { id: id(), created_at: new Date().toISOString(), enquiry_id: e.id, subject: body.subject, body: body.body, sent_to: e.email };
+        (db.replies ||= []).push(reply); e.status = "replied"; e.replied_at = reply.created_at;
+        save(); return copy({ ok: true, reply, enquiry: e }); // demo: nothing is actually sent
       }
       case "DELETE /api/desk/enquiries/:id":
         db.enquiries = db.enquiries.filter(x => x.id !== rid); save(); return { ok: true };

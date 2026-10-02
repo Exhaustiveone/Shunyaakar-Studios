@@ -194,9 +194,6 @@
       : `<p class="empty">${st.data.enquiries.length ? "Nothing here." : "No enquiries yet. When someone writes through <b>Work with us</b>, it lands here."}</p>`;
   }
 
-  function mailtoFor(e, d) {
-    return `mailto:${encodeURIComponent(e.email)}?subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(`${d.body}\n\n> ${e.name} wrote:\n> ${e.message.replace(/\n/g, "\n> ")}`.slice(0, 1800))}`;
-  }
 
   function renderEnqDetail() {
     const box = $("#enqDetail"), e = st.sel && byId(st.sel);
@@ -206,12 +203,14 @@
     }
     const first = e.name.split(/\s+/)[0];
     const d = st.replies[e.id] || (st.replies[e.id] = { subject: `Re: ${e.project || "your message"} | Shunyaakar`, body: `Hi ${first},\n\n` });
+    const mail = st.data.mail || {};
+    const sent = (st.data.replies || []).filter(r => r.enquiry_id === e.id);
     box.innerHTML = `
       <button class="back" data-act="back">← All enquiries</button>
       <header class="d-head">
         <p class="d-status s-${esc(e.status)}">${STATUS[e.status]}</p>
         <h1 class="d-name">${esc(e.name)}</h1>
-        <p class="d-email"><a href="mailto:${esc(e.email)}">${esc(e.email)}</a><button class="link-btn" data-act="copy" data-text="${esc(e.email)}">Copy</button></p>
+        <p class="d-email"><span class="d-addr">${esc(e.email)}</span><button class="link-btn" data-act="copy" data-text="${esc(e.email)}">Copy</button></p>
       </header>
       <dl class="d-meta">
         <div><dt>Making</dt><dd>${esc(e.project || "Something else")}</dd></div>
@@ -231,16 +230,21 @@
         <h2 class="h-small">Reply</h2>
         <label class="field"><span>Subject</span><input id="rSubject" maxlength="200" value="${esc(d.subject)}"></label>
         <label class="field"><span>Message</span><textarea id="rBody" rows="8">${esc(d.body)}</textarea></label>
-        <div class="row"><a class="btn btn-marigold" id="mailto" href="${esc(mailtoFor(e, d))}">Open in email app</a></div>
-        <p class="hint">Drafts it in Gmail or Mail with their message quoted. After sending, mark it <b>Replied</b>.</p>
+        <div class="row"><button class="btn btn-marigold" data-act="send-reply"${mail.enabled ? "" : " disabled"}>Send reply</button></div>
+        <p class="hint">${mail.enabled
+          ? `Sends straight to ${esc(e.email)} from ${esc(mail.from)}, with their message quoted underneath. It's marked <b>Replied</b> automatically.`
+          : "Email sending isn't set up on the server yet (SMTP settings), so replies can't be sent from here."}</p>
       </section>
+
+      ${sent.length ? `<section class="history"><h2 class="h-small">Sent from the desk</h2>${sent.map(r => `
+        <article class="sent-reply"><p class="sent-meta">${fmtFull(r.created_at)} · ${esc(r.subject)}</p><div>${esc(r.body)}</div></article>`).join("")}</section>` : ""}
 
       <p class="d-foot"><button class="link-btn danger" data-act="delete">Delete this enquiry</button></p>`;
 
     const notes = $("#notes"); let nt;
     notes.addEventListener("input", () => { clearTimeout(nt); $("#notesState").textContent = ""; nt = setTimeout(() => saveNotes(e.id, notes.value), 900); });
     notes.addEventListener("blur", () => { clearTimeout(nt); const cur = byId(e.id); if (cur && (cur.notes || "") !== notes.value.trim()) saveNotes(e.id, notes.value); });
-    const sync = () => { d.subject = $("#rSubject").value; d.body = $("#rBody").value; $("#mailto").href = mailtoFor(e, d); };
+    const sync = () => { d.subject = $("#rSubject").value; d.body = $("#rBody").value; };
     $("#rSubject").addEventListener("input", sync);
     $("#rBody").addEventListener("input", sync);
   }
@@ -352,6 +356,17 @@
     async copy(b) {
       try { await navigator.clipboard.writeText(b.dataset.text); toast("Copied."); }
       catch { toast(legacyCopy(b.dataset.text) ? "Copied." : b.dataset.text); }
+    },
+    async "send-reply"(b) {
+      const e = byId(st.sel), d = st.replies[e.id];
+      if (!d.subject.trim() || !d.body.replace(`Hi ${e.name.split(/\s+/)[0]},`, "").trim()) { toast("Write the reply first."); return; }
+      if (!confirm(`Send this reply to ${e.email}?`)) return;
+      b.disabled = true; b.textContent = "Sending";
+      try {
+        const r = await api("POST", `${enquiryPath(e.id)}/reply`, { subject: d.subject, body: d.body });
+        (st.data.replies ||= []).push(r.reply); replaceEnquiry(r.enquiry); delete st.replies[e.id];
+        renderApp(); toast(`Reply sent to ${e.email}.`, "good");
+      } catch (x) { b.disabled = false; b.textContent = "Send reply"; toast(x.message, "bad"); }
     },
     async delete() {
       const e = byId(st.sel);

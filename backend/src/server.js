@@ -27,6 +27,7 @@ const routes = [
   ["GET", /^\/api\/desk\/overview$/, desk.overview],
   ["PATCH", new RegExp(`^/api/desk/enquiries/${ID}$`), desk.updateEnquiry],
   ["DELETE", new RegExp(`^/api/desk/enquiries/${ID}$`), desk.deleteEnquiry],
+  ["POST", new RegExp(`^/api/desk/enquiries/${ID}/reply$`), desk.replyEnquiry],
   ["DELETE", new RegExp(`^/api/desk/subscribers/${ID}$`), desk.deleteSubscriber]
 ];
 
@@ -59,7 +60,8 @@ async function handle(req, res) {
     } catch (err) {
       const status = err instanceof HttpError ? err.status : 500;
       if (status >= 500) console.error(`api: ${req.method} ${pathname} failed:`, err.message);
-      const message = status >= 500 ? "Something went wrong on our side. Please try again." : err.message;
+      // Our own HttpError messages are written for people; anything unexpected stays generic.
+      const message = err instanceof HttpError && status !== 500 ? err.message : "Something went wrong on our side. Please try again.";
       if (res.headersSent) res.destroy();
       else if (!wantsJson(req) && req.method === "POST") sendPage(res, status, "That didn't go through", message); // a form posted without JavaScript
       else sendJson(res, status, { ok: false, error: message }, { ...pub.corsFor(req, pathname), ...err.headers }); // CORS so allowed sites can read the error

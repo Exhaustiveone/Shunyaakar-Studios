@@ -164,7 +164,7 @@ code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .88em;
 .d-status.s-done { background: var(--bone); color: var(--ink); }
 .d-name { font: 800 clamp(1.5rem, 3.6vw, 2.3rem)/1.1 var(--f-display); margin: 0 0 .4rem; overflow-wrap: anywhere; }
 .d-email { margin: 0 0 1.3rem; display: flex; flex-wrap: wrap; gap: .3rem .8rem; align-items: center; overflow-wrap: anywhere; }
-.d-email a { color: var(--marigold); }
+.d-email .d-addr { color: var(--marigold); }
 .d-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .8rem 1.4rem; margin: 0 0 1.3rem; padding: 1rem 0; border-block: 1px solid var(--line); }
 .d-meta dt { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
 .d-meta dd { margin: .1rem 0 0; font-weight: 600; }
@@ -180,6 +180,10 @@ code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .88em;
 .seg.s-spam.is-on { background: var(--spam); color: var(--bone); }
 
 .reply { margin-top: 1.8rem; padding-top: 1.4rem; border-top: 1px solid var(--line); }
+.history { margin-top: 1.8rem; }
+.sent-reply { border-left: 3px solid var(--peacock); padding: .2rem 0 .2rem 1rem; margin-bottom: 1rem; }
+.sent-reply div { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .95rem; }
+.sent-meta { color: var(--muted); font-size: .82rem; margin: 0 0 .3rem; }
 .d-foot { margin: 2rem 0 0; text-align: right; }
 
 /* ---------- newsletter ---------- */

@@ -28,6 +28,18 @@ alter table public.enquiries add constraint enquiries_lengths_check check (
 create index if not exists enquiries_created_idx on public.enquiries (created_at desc);
 create index if not exists enquiries_email_created_idx on public.enquiries (email, created_at desc);
 
+-- Replies sent to enquirers from the desk (by email, through SMTP).
+create table if not exists public.enquiry_replies (
+  id          uuid primary key default gen_random_uuid(),
+  created_at  timestamptz not null default now(),
+  enquiry_id  uuid not null references public.enquiries (id) on delete cascade,
+  subject     text not null,
+  body        text not null
+);
+alter table public.enquiry_replies add column if not exists sent_to text;
+alter table public.enquiry_replies add column if not exists message_id text;
+create index if not exists enquiry_replies_enquiry_idx on public.enquiry_replies (enquiry_id, created_at);
+
 -- Newsletter sign-ups ("Letters from the set"). Stored only: never sent anywhere.
 create table if not exists public.newsletter_subscribers (
   id          uuid primary key default gen_random_uuid(),
@@ -71,6 +83,7 @@ alter table public.enquiries              enable row level security;
 alter table public.newsletter_subscribers enable row level security;
 alter table public.admin_users            enable row level security;
 alter table public.admin_sessions         enable row level security;
+alter table public.enquiry_replies        enable row level security;
 
 -- Belt and braces on Supabase: take away the public API roles' table rights too.
 do $$
@@ -78,7 +91,7 @@ declare r text;
 begin
   foreach r in array array['anon', 'authenticated'] loop
     if exists (select 1 from pg_roles where rolname = r) then
-      execute format('revoke all on table public.enquiries, public.newsletter_subscribers, public.admin_users, public.admin_sessions from %I', r);
+      execute format('revoke all on table public.enquiries, public.newsletter_subscribers, public.admin_users, public.admin_sessions, public.enquiry_replies from %I', r);
     end if;
   end loop;
 end $$;

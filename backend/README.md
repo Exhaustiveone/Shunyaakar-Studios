@@ -57,6 +57,24 @@ When you buy one, go to Render → your service → **Settings → Custom Domain
   It asks for the email and the new password, without showing the password, and signs out all existing sessions.
 - **Changing the password, from Render only:** set `ADMIN_PASSWORD` to the new password and `ADMIN_PASSWORD_RESET=true`, redeploy, then remove both.
 
+## Replying to enquiries by email (SMTP)
+
+The desk's **Send reply** button emails the client directly from your address through SMTP (Nodemailer). The mail app never opens. The reply goes only to that enquiry's own email, read from the database, with the client's message quoted underneath. It's saved under "Sent from the desk" and the enquiry is marked **Replied**.
+
+Set these on Render (and in `.env` locally):
+
+| Variable | Value |
+|---|---|
+| `SMTP_HOST` | `smtp.gmail.com` |
+| `SMTP_PORT` | `465` |
+| `SMTP_USER` | your Gmail address |
+| `SMTP_PASS` | a Gmail **App Password**: Google Account → Security → turn on 2-Step Verification → **App passwords** → create one. Not your normal password. |
+| `MAIL_FROM` | optional, e.g. `Mayank Sharma \| Shunyaakar <you@gmail.com>` |
+
+**Render's free plan blocks outgoing SMTP (ports 25, 465, 587).** On a free instance the desk will say it couldn't reach the email server. Sending needs a paid instance (Starter, $7/month), or an email provider that accepts SMTP on port 2525 (Gmail doesn't).
+
+Limits: 40 replies per hour; subject up to 200 characters, message up to 10,000.
+
 ## Security, in short
 
 | Area | What's done |
