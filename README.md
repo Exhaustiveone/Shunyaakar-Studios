@@ -21,10 +21,10 @@ shunyaakar-studio/
 
 1. `js/content.js` → `brand.email` and `brand.socials`: your real email and profile links.
 2. `index.html`, near the top → change the two `og:image` lines to your full live address
-   (e.g. `https://your-site.netlify.app/assets/img/share-card.png`) so link previews show the card.
-3. Connect the backend: follow **[BACKEND.md](BACKEND.md)** (Supabase, about 15 minutes).
-   Contact enquiries, "Letters from the set" sign-ups and your newsletters then live in your
-   private desk at `/desk/`. You send letters from your own Gmail, and the desk does the copying.
+   (e.g. `https://your-site.onrender.com/assets/img/share-card.png`) so link previews show the card.
+3. Deploy on Render: follow **[backend/README.md](backend/README.md)** (about 10 minutes).
+   Contact enquiries and "Letters from the set" sign-ups are stored in Supabase and show up in
+   your private desk at `/desk/`.
 4. When AHAM is fully cast, set `callsheet.open: false` to hide the casting call.
 
 ## Everyday edits (all in `js/content.js`)
@@ -107,16 +107,16 @@ notes from the set → music → work with us → portfolio → about → contac
 move the cursor over it and the grains scatter and settle back).
 
 Share links: any film except the featured one opens directly with `#film-<id>`,
-e.g. `your-site.netlify.app/#film-humsaya`. The featured film links to `#making`.
+e.g. `your-site.onrender.com/#film-humsaya`. The featured film links to `#making`.
 
-`404.html` is the "This scene was cut" page; Netlify uses it automatically.
+`404.html` is the "This scene was cut" page; the backend serves it for any unknown address.
 
 ## Deploy
 
-Netlify deploys from the GitHub repo (Add new site → Import an existing project → GitHub).
-Every push to `main` goes live. Drag-and-drop no longer works, because the forms and the desk
-run on Netlify Functions, which only deploy from Git or the CLI. Opened locally (Live Server),
-the contact form falls back to opening your email app instead. See [BACKEND.md](BACKEND.md).
+The whole site runs on **Render** from the GitHub repo: one Node service (in `backend/`) serves
+the pages, the forms and the desk. Every push to `main` goes live. Setup: [backend/README.md](backend/README.md).
+Opened locally with Live Server, the pages work and the contact form falls back to opening your
+email app; `/desk` shows a demo with sample data.
 
 ## Image tips
 

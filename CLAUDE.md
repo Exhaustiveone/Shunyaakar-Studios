@@ -12,7 +12,7 @@
 - **Brand:** **Shunyaakar** (शून्याकार), "the shape of zero". Motto on the site: *every story starts at zero*. Footer line: "शून्य से, सब कुछ।"
 - **What the site is:** the founding website of a full-spectrum production house. Films and Music are live divisions; VFX and Animation are shown as "opening soon". It also works as an open notebook, showing the complete process of the first short film, **AHAM**, from script to release.
 - **His separate personal portfolio** (photography, design, travel) lives at `https://shunyaakar.netlify.app`. This site links to it; it is a different site.
-- **Tech:** plain static site. HTML, CSS and vanilla JS. **No framework, no build step, no npm dependencies.** Deploy target is **Netlify, from the GitHub repo** (drag-and-drop can't deploy functions). A small backend (Netlify Functions + Supabase + Resend) handles the two forms and the private `/desk/`; see section 14 and `BACKEND.md`.
+- **Tech:** the site itself is plain HTML, CSS and vanilla JS, with **no framework and no build step**. It's served by a small Node backend in `backend/` (one dependency: `pg`), deployed on **Render** from the GitHub repo via `render.yaml`. The backend stores enquiries and newsletter sign-ups in **Supabase Postgres** and runs the private `/desk/`; see section 14 and `backend/README.md`.
 - **Editing tools:** Claude Code (this repo via GitHub) and **Antigravity** (a VS Code-style IDE). Preview locally with the **Live Server** extension, or `python -m http.server 5500`, then open `http://localhost:5500`.
 
 ---
@@ -63,14 +63,12 @@ The owner's own words across the design rounds: *"larger than life"*, *"another 
 ```
 /
 ├── index.html        page structure (all sections, the 2 forms → /api/*, SEO + JSON-LD, share-card meta)
-├── 404.html          "This scene was cut." page with a clapping slate (Netlify serves it automatically)
+├── 404.html          "This scene was cut." page with a clapping slate (the backend serves it for unknown paths)
 ├── README.md         owner-facing guide (how to edit content, deploy, tweak timings)
-├── BACKEND.md        owner-facing backend setup (Supabase, Resend, Netlify env vars) and desk guide
-├── netlify.toml      functions dir, desk headers, 404s for repo-only files
-├── netlify/functions/ contact, subscribe, unsubscribe, desk, keepalive (plain ESM, fetch only)
-├── netlify/lib/      http.mjs, db.mjs (Supabase REST), mail.mjs (Resend + email templates)
-├── supabase/schema.sql  tables + RLS (run once in the Supabase SQL editor)
-├── desk/             the private studio desk (index.html, desk.css, desk.js, demo.js)
+├── BACKEND.md        pointer to backend/README.md
+├── render.yaml       Render Blueprint: one Node web service (build/start/health check/env vars)
+├── backend/          the Node server (see section 14): src/, db/schema.sql, scripts/create-admin.js, README.md
+├── desk/             the private studio desk UI (index.html, desk.css, desk.js, demo.js for local preview)
 ├── CLAUDE.md         this file
 ├── css/style.css     all styles (~1200 lines); tokens in :root at the top
 ├── js/content.js     ★ ALL CONTENT as window.SITE (films, stages, journal, roles, services, tracks, links)
@@ -243,17 +241,17 @@ Studied: A24, Blumhouse, Yash Raj Films, Somesuch, Nexus Studios, DNEG. Borrowed
 
 1. Replace `brand.email` and `brand.socials` in `content.js`.
 2. In `index.html`, change the `og:image` and `twitter:image` meta tags to the **absolute live URL** of `assets/img/share-card.png`.
-3. Deploy to Netlify from GitHub and finish the backend setup in `BACKEND.md` (desk user, disable sign-ups, secret key, three Netlify env vars; the tables already exist).
+3. Deploy on Render with the Blueprint (`render.yaml`) and set `DATABASE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`; delete `ADMIN_PASSWORD` after the first sign-in (see `backend/README.md`). The admin row for the owner's email already exists in `admin_users` without a password.
 4. Add real assets as they exist: stills and storyboards (stage `media`), the founder photo, the AHAM poster, trailer and showreel embed URLs, and mp3 tracks.
 5. **Portfolio collage** (`assets/img/portfolio-collage.webp`) contains another designer's text ("4+ years of experience…"). Replace it with the owner's own image.
 6. Close the call sheet (`callsheet.open:false`) when AHAM is cast.
-7. Optional: automatic email via Resend (see the end of `BACKEND.md`).
+7. Optional: a free uptime monitor on `/api/health` every 10 minutes keeps the free Render service and Supabase project awake.
 
 ---
 
 ## 12. Working rules for Claude Code in this repo
 
-- **Keep it dependency-free and build-free.** No frameworks, bundlers or npm packages in the shipped site. Everything must work by opening `index.html` on a static host.
+- **Keep it light.** The frontend stays framework-free and build-free (it must still work from Live Server). The backend stays on Node built-ins plus `pg`; don't add frameworks (Express etc.) or extra packages without the owner asking. Regenerate `backend/package-lock.json` whenever dependencies change (Render runs `npm ci`).
 - **Content goes in `content.js`**; don't hard-code film data in `main.js` or the HTML.
 - **Respect sections 2 and 3.** Flat colours, the brand palette, the five fonts, cinematic motion. No gradient washes, no party effects in the AHAM section, no multicolour footer, no cursor circle.
 - **Copy style:** plain, confident, sentence case; no filler; the owner's first-person voice ("I") on About, contact and journal. Don't invent facts about the owner or the films; ask.
@@ -291,22 +289,27 @@ Headless Chromium with Playwright:
 5. After the production-house research: manifesto, credits and share, numbers, call sheet, journal, services, Netlify forms, footer and newsletter, SEO, share card, 404.
 6. Sound on by default via the entrance gate; the scroll lock during the clap.
 7. The yuga reveal was reworked to be intense rather than a party; the footer became the particle wordmark; the cursor circle was removed.
+8. Backend (27 Sep 2026): first on Netlify Functions + Supabase REST + optional Resend, then (2 Oct 2026, per `requirements.md`) replaced by a Node server in `backend/` on Render with database-checked admin auth and store-only newsletter sign-ups. The Netlify code was removed.
 
-A private preview has been published as a Claude artifact; the real deployment target is Netlify.
+A private preview has been published as a Claude artifact; the real deployment target is Render.
 
 ---
 
 ## 14. Backend: forms, database and the studio desk
 
-Added 27 Sep 2026. Owner-facing setup and usage are in `BACKEND.md`.
+Rebuilt 2 Oct 2026 from the owner's `requirements.md`. Owner-facing setup and security notes: `backend/README.md`.
 
-- **Stack:** Netlify Functions v2 (`export default (req) => Response`, `config.path`), Supabase (Postgres via PostgREST, plus Supabase Auth for the desk login). **Resend is optional and off by default** (owner's choice, 27 Sep 2026): newsletters are sent from the owner's Gmail via the desk's copy-letter / copy-emails (Bcc) / open-Gmail / mark-as-sent steps. **No npm packages**: the functions use `fetch` and web-standard APIs only.
-- **Endpoints:** `POST /api/contact`, `POST /api/subscribe` (both accept JSON, or urlencoded for no-JS posts, and have honeypots `company` / `website`), `/unsubscribe` (also `/api/unsubscribe`): without a token it asks for the email and answers the same either way; with `?t=<token>` GET confirms and POST does it (RFC 8058 one-click), `POST /api/desk {action}`, and the scheduled `keepalive` (daily).
-- **Tables** (`supabase/schema.sql`): `enquiries` (status new/replied/done/spam, notes), `enquiry_replies`, `subscribers` (email unique, status, private `token`), `letters` (status draft/sent/partial, `updated_at`, `sent_at`; desk actions `letter.save`, `letter.mark_sent`, `letter.delete`). RLS is on with no policies, so only the secret key (server side) can read or write.
-- **Desk auth:** `login` exchanges email and password with Supabase Auth; every other action verifies the bearer token via `/auth/v1/user` **and** that the email equals `ADMIN_EMAIL`. Sign-ups are disabled in Supabase.
-- **Env vars:** `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` (new `sb_secret_` keys go only in `apikey`; legacy JWT keys also go in `Authorization`), `ADMIN_EMAIL`. Optional (Resend): `RESEND_API_KEY`, `NOTIFY_EMAIL`, and after a domain `MAIL_FROM`, `REPLY_TO`, `SITE_URL`. The Supabase project exists and the schema is already applied; its URL is in the owner's local `.env` (never commit it). The owner's `.env` (gitignored) holds `SUPABASE_URI` for direct Postgres access.
-- **Setup vs live mail:** `mailConfig().live` is true once `MAIL_FROM` isn't `@resend.dev`. Before that, only the owner's alerts and tests are sent; desk replies, acknowledgements, welcomes and letters are refused with a clear message, and the desk falls back to `mailto:`.
-- **Safety rules:** escape every user value in the desk (`esc`) and in the emails (`esc` in `mail.mjs`); validate ids with `isId` before putting them in PostgREST filters; CSV export neutralises formula cells; `letter.send` requires `expect` to equal the live subscriber count and refuses the same subject within 15 minutes.
-- **Desk UI** follows the site's palette and fonts (flat colours, Unbounded / Bricolage / Caveat for the "desk" mark). Status colours: new = rani, replied = peacock, done = outline, spam = grey. It must work at 390px with no horizontal overflow.
-- **Testing without Node:** a module service worker can import the real function files and route `/api/*` to them, with `fetch` mocked for Supabase and Resend. That is how this was verified; the harness lives outside the repo.
-- **Demo mode:** `desk.js` asks `/api/desk {action:"status"}` on load. If the backend isn't reachable or isn't configured (`ready:false`), it loads `desk/demo.js`, which answers every desk action from sample data in localStorage (login `demo@shunyaakar.test` / `shunyaakar-demo`). A demo session is dropped once the real backend is ready. Keep `demo.js` in step with new desk actions.
+**Requirements (keep them true):**
+1. Contact enquiries go to Supabase and are shown at `/desk`. Only the admin can open the desk. The admin email is stored in the database (`admin_users`, role `admin`), **never hard-coded in the frontend**, and every sign-in and desk request is verified against the database.
+2. Newsletter sign-ups go to their own table (`newsletter_subscribers`) and are **stored only**: never emailed, exported or processed beyond validation and parameterised insertion. (The desk only lists them and can delete one.)
+
+**Architecture:** one Node 22 server (`backend/src/server.js`, plain `node:http`, ESM) serves the static site *and* the API, so the desk and API share an origin and the session cookie can be `SameSite=Strict`. Render runs it from `render.yaml`: `cd backend && npm ci --omit=dev`, `node src/server.js`, health check `/api/health`. The only dependency is `pg`. On start it runs `backend/db/schema.sql` (idempotent, in a transaction under an advisory lock), then `ensureAdmin()`.
+
+- **Routes:** `POST /api/contact`, `POST /api/subscribe` (JSON, or urlencoded for no-JS posts, honeypots `company` / `website`), `GET /api/health`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `GET /api/desk/overview`, `PATCH|DELETE /api/desk/enquiries/:id`, `DELETE /api/desk/subscribers/:id`.
+- **Tables:** `enquiries` (status new/replied/done/spam, notes; length and status checks), `newsletter_subscribers` (email unique, lowercase), `admin_users` (email, role check 'admin', scrypt `password_hash`, `failed_attempts`, `locked_until`), `admin_sessions` (SHA-256 `token_hash`, `expires_at`). RLS is on with no policies, and `anon` / `authenticated` rights are revoked. Old empty tables from the Netlify version (`subscribers`, `letters`, `enquiry_replies`) may still exist in the live database; nothing uses them.
+- **Auth:** scrypt (N=2^15) with constant-time compare; an unknown email runs a dummy hash and failed attempts are recorded in the background, so timing doesn't reveal accounts. Limits: 10 attempts per IP per 15 min, and 5 wrong passwords lock the account for 15 min. The session is a random 32-byte token in an `HttpOnly; SameSite=Strict; Secure` cookie (`__Host-sk_desk` over HTTPS); only its hash is stored. Every desk request re-checks the session and `role = 'admin'`, and state-changing requests must pass an `Origin` check.
+- **Admin password:** `ADMIN_EMAIL` and `ADMIN_PASSWORD` (from `.env` locally, Render env in production) are the source of truth; on every start the stored scrypt hash is updated if it no longer matches, and old sessions are signed out. Alternatively run `cd backend && npm run create-admin`. The owner's admin row already exists without a password.
+- **Env vars:** `DATABASE_URL` (Supabase pooler URI; `SUPABASE_URI` from the owner's local `.env` also works), `ADMIN_EMAIL`, `ADMIN_PASSWORD`; optional `SESSION_HOURS`, `DATABASE_CA_CERT`, `DB_POOL_MAX`, `ALLOWED_ORIGINS`, `ADMIN_PASSWORD_RESET`, `COOKIE_SECURE` / `TRUST_PROXY` (default on in production). Locally, `backend/.env` or the repo-root `.env` are read. Never commit either.
+- **Security plumbing:** a CSP that allows inline scripts only by SHA-256 hash (computed from `index.html`, `404.html` and `desk/index.html` at start, so **restart the server after editing an inline script**), plus HSTS, `nosniff`, `X-Frame-Options: DENY`, `Permissions-Policy` and COOP/CORP. If you add a new third-party resource (a font host, video embed or analytics), add its host to `buildCsp()` in `backend/src/security.js`. Static files are allow-listed (`index.html`, `404.html`, `favicon.ico`, `robots.txt`, `site.webmanifest`, `css/`, `js/`, `assets/`, `desk/`); **add new top-level public files to `PUBLIC_FILES` in `backend/src/static.js`**. Other limits: 16 KB bodies, per-IP rate limits, and at most 3 enquiries per email per 10 min. All queries use `$n` parameters.
+- **Desk UI** (`desk/desk.js`): it calls `/api/auth/me` on load, then `/api/desk/overview`; it holds no tokens. The Newsletter tab is read-only (search, delete; no export). **Demo mode** (`desk/demo.js`, login `demo@shunyaakar.test` / `shunyaakar-demo`) loads only on `localhost` when the API is unreachable, i.e. Live Server; it can never appear on the real site.
+- **Testing:** Node isn't installed on the owner's Mac. A Node binary in the session scratchpad was used to run the real server against Supabase (static allow-list and traversal, headers, gzip/304, forms incl. injection strings and limits, login and lockout, timing, CSRF, logout, the desk in a browser at 1024px and 375px, the main site under the CSP), and test rows were deleted afterwards. Use addresses `@example.com` or `@example.test` for test data so it can be cleaned up.

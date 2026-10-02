@@ -1,0 +1,20 @@
+{
+  "name": "shunyaakar-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lightweight backend for the Shunyaakar site: serves the site, stores enquiries and newsletter sign-ups in Supabase Postgres, and runs the private /desk.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "create-admin": "node scripts/create-admin.js",
+    "check": "node --check src/server.js && node --check scripts/create-admin.js"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}

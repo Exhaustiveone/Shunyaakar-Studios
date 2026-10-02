@@ -1,0 +1,25 @@
+# Render Blueprint: Render → New → Blueprint → pick this repo. It creates one web
+# service that serves the website, the /desk page and the API (see backend/README.md).
+services:
+  - type: web
+    name: shunyaakar
+    runtime: node
+    plan: free
+    region: singapore            # closest Render region to the Supabase project
+    buildCommand: cd backend && npm ci --omit=dev
+    startCommand: cd backend && node src/server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      # Supabase → Connect → "Session pooler" (or Transaction pooler) URI, with your DB password in it.
+      - key: DATABASE_URL
+        sync: false
+      # The desk's admin login. ADMIN_PASSWORD is needed only for the first boot; delete it afterwards.
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
