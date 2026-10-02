@@ -195,6 +195,12 @@
   }
 
 
+  // The same reply, drafted in the computer's own mail app (Gmail, Mail, Outlook) to send by hand.
+  function mailtoFor(e, d) {
+    const body = `${d.body}\n\n> ${e.name} wrote:\n> ${e.message.replace(/\n/g, "\n> ")}`;
+    return `mailto:${encodeURIComponent(e.email)}?subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(body.slice(0, 1800))}`;
+  }
+
   function renderEnqDetail() {
     const box = $("#enqDetail"), e = st.sel && byId(st.sel);
     if (!e) {
@@ -230,10 +236,14 @@
         <h2 class="h-small">Reply</h2>
         <label class="field"><span>Subject</span><input id="rSubject" maxlength="200" value="${esc(d.subject)}"></label>
         <label class="field"><span>Message</span><textarea id="rBody" rows="8">${esc(d.body)}</textarea></label>
-        <div class="row"><button class="btn btn-marigold" data-act="send-reply"${mail.enabled ? "" : " disabled"}>Send reply</button></div>
+        <div class="row">
+          <button class="btn btn-marigold" data-act="send-reply"${mail.enabled ? "" : " disabled"}>Send reply</button>
+          <a class="btn btn-ghost" id="mailto" href="${esc(mailtoFor(e, d))}" >Open in email app</a>
+        </div>
         <p class="hint">${mail.enabled
           ? `Sends straight to ${esc(e.email)} from ${esc(mail.from)}, with their message quoted underneath. It's marked <b>Replied</b> automatically.`
-          : "Email sending isn't set up on the server yet (SMTP settings), so replies can't be sent from here."}</p>
+          : "Email sending isn't set up on the server yet (SMTP settings), so use <b>Open in email app</b> for now."}
+          <br><b>Open in email app</b> drafts the same reply in your mail app to send yourself; mark it <b>Replied</b> afterwards.</p>
       </section>
 
       ${sent.length ? `<section class="history"><h2 class="h-small">Sent from the desk</h2>${sent.map(r => `
@@ -244,7 +254,7 @@
     const notes = $("#notes"); let nt;
     notes.addEventListener("input", () => { clearTimeout(nt); $("#notesState").textContent = ""; nt = setTimeout(() => saveNotes(e.id, notes.value), 900); });
     notes.addEventListener("blur", () => { clearTimeout(nt); const cur = byId(e.id); if (cur && (cur.notes || "") !== notes.value.trim()) saveNotes(e.id, notes.value); });
-    const sync = () => { d.subject = $("#rSubject").value; d.body = $("#rBody").value; };
+    const sync = () => { d.subject = $("#rSubject").value; d.body = $("#rBody").value; $("#mailto").href = mailtoFor(e, d); };
     $("#rSubject").addEventListener("input", sync);
     $("#rBody").addEventListener("input", sync);
   }
