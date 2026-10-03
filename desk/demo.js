@@ -34,7 +34,7 @@ window.DeskDemo = (() => {
           "I'd like to be considered for Veer / The Other in AHAM.\n\nAbout me: three years of theatre at Ravindra Manch, 22, based in Malviya Nagar. Happy to send a self-tape.", "new", ago(0, 9)),
         e("Neha Purohit", "neha@example.com", "Short or branded film", "January",
           "We run a small handloom label in Sanganer and want a 90-second film about our block printers. Budget is flexible.", "replied", ago(2), "Call on Friday. Sent the rate card."),
-        e("Kabir Mehta", "kabir.m@example.com", "Music or score", "Before March",
+        e("Kabir Mehta", "kabir.m@example.com", "Something else", "Before March",
           "Looking for a 4-minute original score for a college short. Tabla and drone, something like your damru motif.", "new", ago(3, 5)),
         e("Pooja Rathore", "pooja.r@example.com", "Edit and colour", "Two weeks",
           "Have 40 minutes of documentary footage from Pushkar mela. Need an edit and a grade.", "done", ago(9), "Delivered."),

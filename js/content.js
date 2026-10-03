@@ -20,6 +20,8 @@ window.SITE = {
     location: "Jaipur, Rajasthan",
     email: "hello@shunyaakarstudios.in",
     portfolioUrl: "https://shunyaakar.netlify.app", // ← your personal portfolio
+    portfolioImage: "",                       // ← e.g. "assets/img/portfolio-cover.jpg" (4:5). Empty shows a name card.
+    whatsapp: "",                             // ← digits with country code, e.g. "919812345678". Empty hides WhatsApp.
     apiUrl: "https://shunyaakar-studios.onrender.com",   // ← the backend (Render). Forms post here when the site is opened from another host.
     showreelUrl: "",                          // ← YouTube embed link when ready
     founderPhoto: "",                         // ← e.g. "assets/img/mayank.jpg"
@@ -44,7 +46,7 @@ window.SITE = {
   /* The manifesto. It lights up word by word as you scroll.
      Wrap a word in *stars* to give it a solid colour highlight. */
   manifesto:
-    "Every story here begins at *zero*. A blank page. One camera. No lights. We write it, shoot it, *score* it and cut it ourselves, in *Jaipur*, and we leave the door open so you can watch it become *something*.",
+    "Every story here begins at *zero*. A blank page. A real street. I write it, shoot it, *score* it and cut it myself, in *Jaipur*, and I leave the door open so you can watch it become *something*.",
 
   /* The production house's divisions ("worlds").
      status: "live" or "soon". Add a new one when a vertical opens. */
@@ -69,13 +71,15 @@ window.SITE = {
       name: "VFX",
       status: "soon",
       tone: "steel",
-      text: "Compositing and invisible effects, built first for our own films."
+      text: "Compositing and invisible effects, built first for my own films.",
+      stage: "Planned"
     },
     {
       name: "Animation",
       status: "soon",
       tone: "steel-2",
-      text: "2D and motion work for stories that can't be shot on a camera."
+      text: "2D and motion work for stories that can't be shot on a camera.",
+      stage: "Planned"
     }
   ],
 
@@ -100,7 +104,7 @@ window.SITE = {
       tagline: "A film about the self that hides, and the self that answers.",
       logline:
         "Veer, 21, a civil engineering student in Jagatpura, swallows every insult with a smile. Then he starts waking up exhausted, with blood under his nails, and the morning news starts matching his dreams.",
-      note: "Our first film. Shot around SKIT and Jagatpura.",
+      note: "My first film. Shot around SKIT and Jagatpura.",
       trailer: "",                        // ← YouTube embed link for the teaser/trailer
       /* Where to watch: add { label: "YouTube", url: "https://..." } when it's out */
       watch: [],
@@ -111,15 +115,15 @@ window.SITE = {
         { role: "Music and songs", name: "Shunyaakar Sound with Genvox Studio" },
         { role: "Language", name: "Hindi" },
         { role: "Shot in", name: "Jagatpura and Ramnagariya, Jaipur" },
-        { role: "Camera", name: "Sony a6100, natural light" }
+        { role: "Light", name: "Available light, shaped on location" }
       ],
       /* AHAM in numbers (counts up on screen). "from" makes it count down. */
       numbers: [
         { value: 23, label: "pages in the final draft" },
         { value: 29, label: "scenes, each with a real Jaipur address" },
         { value: 7, label: "Sundays to shoot the whole film" },
-        { value: 1, label: "camera" },
-        { value: 0, from: 12, label: "lighting kits" }
+        { value: 2, label: "worlds of light, one warm, one cold" },
+        { value: 0, from: 29, label: "sets built: every scene is a real place" }
       ],
       stages: [
         {
@@ -148,7 +152,7 @@ window.SITE = {
           status: "done",
           when: "Shoot planned",
           summary:
-            "29 scenes mapped to real locations around Jagatpura and SKIT, a seven-Sunday shoot calendar, and a lighting language designed for zero budget.",
+            "29 scenes mapped to real locations around Jagatpura and SKIT, a seven-Sunday shoot calendar, and a lighting language built from what each place already has: windows, sunlight and the city's own lamps.",
           notes: [
             "Veer's world: warm, soft light",
             "The Other: one hard, cool source"
@@ -165,8 +169,8 @@ window.SITE = {
           when: "Shooting now",
           progress: 60,                   // ← % of the film shot; shown as a meter
           summary:
-            "Shot on a Sony a6100 with natural light, reflectors and whatever the street lamps give us: the railway crossing, the campus, the scrubland off Vatika Road, half-built sites at night.",
-          notes: ["The night hunt: street light only"],
+            "Shot where the story actually happens, in the light those places already have: the railway crossing, the campus, the scrubland off Vatika Road, half-built sites at night.",
+          notes: ["The night hunt: lit by Jaipur's street lamps"],
           media: [
             { type: "image", src: "", caption: "Behind the scenes" },
             { type: "image", src: "", caption: "On set" }
@@ -221,10 +225,10 @@ window.SITE = {
       status: "Writing",
       accent: "#4B63FF", accent2: "#FF3D8B",
       poster: "",
-      logline: "A horror film built entirely in camera: no VFX, only what the frame refuses to show.",
+      logline: "A horror film built on the Qareen, the companion every person is given at birth. Made entirely in camera, with sound doing the haunting.",
       note: "Fear made with nothing but light and timing.",
       stages: [
-        { name: "Script", status: "rolling", when: "Drafting", summary: "Story details coming soon." /* ← write the real summary here */, notes: [], media: [] },
+        { name: "Script", status: "rolling", when: "Drafting", summary: "Built on jinn mythology, with almost no dialogue: the fear lives in the sound design, not in effects.", notes: [], media: [] },
         { name: "Pre-production", status: "next", when: "", summary: "", notes: [], media: [] },
         { name: "Production", status: "next", when: "", summary: "", notes: [], media: [] },
         { name: "Post-production", status: "next", when: "", summary: "", notes: [], media: [] }
@@ -236,14 +240,14 @@ window.SITE = {
       devanagari: "स्मृति",
       year: "In development",
       genre: "Supernatural mystery",
-      status: "Writing",
+      status: "Script ready",
       accent: "#13C2B0", accent2: "#4B63FF",
       poster: "",
-      logline: "A non-linear supernatural mystery set in the hills of Uttarakhand.",
+      logline: "Arjun, an ancient banyan tree, and a memory that is being erased. A non-linear supernatural mystery set in the hills of Uttarakhand.",
       note: "Told out of order, on purpose.",
       stages: [
-        { name: "Script", status: "rolling", when: "Drafting", summary: "Story details coming soon." /* ← write the real summary here */, notes: [], media: [] },
-        { name: "Pre-production", status: "next", when: "", summary: "", notes: [], media: [] },
+        { name: "Script", status: "done", when: "Screenplay complete", summary: "Every scene has a visual reference, and the shoot is planned across Roorkee, Haridwar, Rishikesh and Lansdowne.", notes: [], media: [] },
+        { name: "Pre-production", status: "next", when: "Nine weekends planned", summary: "", notes: [], media: [] },
         { name: "Production", status: "next", when: "", summary: "", notes: [], media: [] },
         { name: "Post-production", status: "next", when: "", summary: "", notes: [], media: [] }
       ]
@@ -256,10 +260,10 @@ window.SITE = {
       status: "Writing",
       accent: "#FFB224", accent2: "#13C2B0",
       poster: "",
-      logline: "A drama about thalassemia and the stranger whose stem cells can save a child.",
+      logline: "A student keeps seeing a small girl in a red dress. She leads him to a thalassemia ward and a donor register.",
       note: "A film with a job to do.",
       stages: [
-        { name: "Script", status: "rolling", when: "Beat board", summary: "Story details coming soon." /* ← write the real summary here */, notes: [], media: [] },
+        { name: "Script", status: "rolling", when: "Beat board", summary: "An 18-minute Hinglish drama about thalassemia and stem-cell donation, being reworked for festivals.", notes: [], media: [] },
         { name: "Pre-production", status: "next", when: "", summary: "", notes: [], media: [] },
         { name: "Production", status: "next", when: "", summary: "", notes: [], media: [] },
         { name: "Post-production", status: "next", when: "", summary: "", notes: [], media: [] }
@@ -285,7 +289,7 @@ window.SITE = {
       tag: "Pre-production",
       date: "",
       title: "Two kinds of light",
-      body: "Veer lives in warm, soft light. The Other only ever gets one hard, cold source. There's no lighting kit, so the rule has to work with windows, reflectors and street lamps.",
+      body: "Veer lives in warm, soft light. The Other only ever gets one hard, cold source. Both are built from what each location already has: a window, a reflector, a street lamp. Light you find looks like it belongs there.",
       image: ""
     },
     {
@@ -306,7 +310,7 @@ window.SITE = {
       tag: "Production",
       date: "",
       title: "The hunt, by street light",
-      body: "The Other's night scenes get whatever the street lamps give us. Nothing added. If the frame goes dark, the frame goes dark.",
+      body: "The Other's night scenes are lit by Jaipur itself: sodium lamps, passing headlights, a shop shutter half open. Where the frame goes dark, it is meant to.",
       image: ""
     }
   ],
@@ -332,13 +336,25 @@ window.SITE = {
      contact form so clicking a row pre-fills it.
      ------------------------------------------------------------------ */
   services: [
-    { title: "Short and branded films", text: "Written, shot and cut end to end, from the first draft to the final grade.", type: "Short or branded film", tone: "rani" },
-    { title: "Music videos", text: "A concept built around the song, then shot with whatever the song needs.", type: "Music video", tone: "marigold" },
-    { title: "Cinematography", text: "A camera operator who thinks in light, especially when there isn't much of it.", type: "Cinematography", tone: "peacock" },
-    { title: "Edit and colour", text: "Cutting for rhythm and feeling, with grades that give each world its own light.", type: "Edit and colour", tone: "royal" },
-    { title: "Original music", text: "Songs, scores and sound design written for the picture, never pulled from a library.", type: "Music or score", tone: "marigold" },
-    { title: "Photography", text: "Portraits, architecture, industry and night work.", type: "Photography", tone: "rani" }
+    { title: "Short and branded films", text: "Your story written, shot, edited and graded by one team, from the first draft to the final file.", type: "Short or branded film", tone: "rani" },
+    { title: "Music videos", text: "A visual concept built around your song, then shot and cut to its rhythm.", type: "Music video", tone: "marigold" },
+    { title: "Cinematography", text: "Camera and lighting for your shoot, planned shot by shot before the day.", type: "Cinematography", tone: "peacock" },
+    { title: "Edit and colour", text: "Your footage cut for rhythm and story, with a grade that gives it one consistent look.", type: "Edit and colour", tone: "royal" },
+    { title: "Photography", text: "Portraits, spaces, products and night work, edited and delivered ready to post.", type: "Photography", tone: "rani" }
   ],
+
+  /* ------------------------------------------------------------------
+     HOW I SHOOT — shown under the service rows in "Work with us"
+     ------------------------------------------------------------------ */
+  method: {
+    title: "Small crew. Real light. Every frame planned.",
+    line: "I don't bring a studio into your place. I make your place the studio.",
+    points: [
+      { title: "A small crew", text: "Fits into a working cafe, shop or set without taking it over, sets up fast, and leaves the place as it found it." },
+      { title: "Light designed for the place", text: "I start with the light your space already has, then add only what the frame needs, so on screen it still looks like your place." },
+      { title: "Every frame planned", text: "Shot list and lighting plan are ready before the shoot day, so the day itself moves fast and nothing important is missed." }
+    ]
+  },
 
   /* ------------------------------------------------------------------
      SHUNYAAKAR SOUND — the music division and its collaborators

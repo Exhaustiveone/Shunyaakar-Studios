@@ -12,7 +12,7 @@ shunyaakar-studio/
 ├── js/content.js       ★ ALL YOUR CONTENT — edit this file most
 ├── js/main.js          behaviour: loader, portal, clapper, reel, music, overlays
 └── assets/
-    ├── img/            photos, posters, stills (portfolio-collage.webp is here)
+    ├── img/            photos, posters, stills (portfolio-collage.webp is no longer used)
     ├── audio/          mp3 files for tracks
     └── video/          (optional) local video files
 ```
@@ -31,7 +31,10 @@ shunyaakar-studio/
 
 | Want to…                         | Change                                                        |
 |----------------------------------|---------------------------------------------------------------|
-| Set your email / socials         | `brand.email`, `brand.socials`                                |
+| Set your email / socials         | `brand.email`, `brand.socials` (a social shows only once its URL points to your profile, e.g. `https://instagram.com/yourname`) |
+| Turn on WhatsApp                 | `brand.whatsapp` → digits with country code, e.g. `"919812345678"` |
+| Portfolio cover image            | `brand.portfolioImage` → `"assets/img/portfolio-cover.jpg"` (4:5); empty shows a name card |
+| "How I shoot" block              | `method` (title, line, three points)                          |
 | Link your personal portfolio     | `brand.portfolioUrl`                                          |
 | Add your showreel                | `brand.showreelUrl` → `"https://www.youtube.com/embed/VIDEO_ID"` |
 | Add your photo in About          | `brand.founderPhoto` → `"assets/img/mayank.jpg"`              |
@@ -86,9 +89,9 @@ Theme: flat, solid Rajasthan colours — no gradients. Tokens at the top of `css
   of the lens, then the ring draws itself around "zero". Height: `.contact-stage { height: 230vh; }`.
 - **Manifesto** (`initManifesto`): pinned; each word lights up as you scroll and starred words get a solid colour block. Height: `.manifesto { height: 300vh; }`.
 - **Notes from the set** (`renderJournal`): on desktop the cards move sideways as you scroll down; on phones you swipe.
-- **Sound** is on by default. Browsers only allow sound after a click or tap, so the loader ends on an
-  "Enter with sound" button; that one tap starts the tanpura drone. Visitors can choose "Enter without sound"
-  or turn it off any time with the speaker button. Sound pauses when the tab is hidden.
+- **Sound** starts off. The film-leader countdown (3, 2, 1) plays and opens the site by itself, silently;
+  the speaker button turns sound on (the tanpura drone, damru, clap). The countdown is skipped on repeat
+  visits in the same tab and with reduced motion. Sound pauses when the tab is hidden.
 
 ## Clapperboard timing
 

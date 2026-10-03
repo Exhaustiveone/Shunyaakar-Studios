@@ -88,16 +88,16 @@ The owner's own words across the design rounds: *"larger than life"*, *"another 
 
 Scroll order, with the key selector and function for each part:
 
-1. **Loader and entrance gate** (`#loader`, `runLoader`). A film-leader countdown (3, 2, 1) then an entrance screen: **"Enter with sound"** or "Enter without sound". Browsers block audio until a user gesture, so this click is what turns sound on. Scroll is locked (`Lock`) until the visitor enters. Sound defaults to ON (`Sound.enabled = true`, the speaker button starts `aria-pressed="true"`).
+1. **Loader** (`#loader`, `runLoader`). A film-leader countdown (3, 2, 1; 400 ms per number, the `.leader-sweep` turns once per number) that **opens the site by itself**. The "Enter with sound" gate was removed at the owner's request (Oct 2026). **Sound starts OFF** (`Sound.enabled = false`, `#soundBtn` starts `aria-pressed="false"`); the speaker button is the only way to turn it on. The countdown is skipped on repeat visits in the same tab (`sessionStorage` key `sk_seen`, wrapped in try/catch) and with reduced motion.
 2. **Hero: fly through the zero** (`.hero`, 290vh, pinned; `initPortal`).
    - A canvas draws a 3D starfield and a particle ring with four flat-colour arcs (the "zero").
    - Scrolling flies the camera through the ring; stars become light streaks.
    - The letters of "Shunyaakar" scatter in 3D (CSS vars `--sp`, `--ts`, `--to`), then "Every story starts at zero." appears.
    - A viewfinder frames it all: REC dot, running timecode (`initHeroTC`), a live Jaipur clock, and a "Now: AHAM, pre-production" status line.
-   - The main button reads "Follow the making of AHAM" until a showreel URL exists; then it becomes "Watch the showreel".
+   - The main button reads "Follow the making of AHAM" until a showreel URL exists; then it becomes "Watch the showreel". The second button is **"Work with us"** (→ `#services`).
 3. **Giant word bands** (`.bands`, `initScrollLinks`). Two huge rows that slide sideways with scroll (`data-speed`).
 4. **Manifesto** (`.manifesto`, 300vh, pinned; `initManifesto`). Giant words light up one by one; `*starred*` words in `SITE.manifesto` get a solid colour block. Signed "Mayank Sharma, founder" in Caveat.
-5. **Studio / worlds** (`#studio`, `renderWorlds`). Four division cards: Films and Music live (solid rani / marigold); VFX and Animation dashed, showing only "Opening soon" / "In the works". **No percentage meters** (owner's request, Oct 2026).
+5. **Studio / worlds** (`#studio`, `renderWorlds`). Four division cards: Films and Music live (solid rani / marigold); VFX and Animation dashed, showing "Opening soon" plus their `stage` label ("Planned"). **No percentage meters** (owner's request, Oct 2026). Music stays live (AHAM's music with Genvox).
 6. **Films and the clapperboard** (`#films`, `initClapper`).
    - A full-screen colourful clapper writes itself in (Caveat), claps with flash, shake and sound, the slate's timecode freezes on the clap, and a marigold iris closes to reveal the film board.
    - **While it claps, scroll is locked:** `glideTo` centres the slate, then `Lock.lock()`, and `Lock.unlock()` fires at 3100 ms.
@@ -107,21 +107,22 @@ Scroll order, with the key selector and function for each part:
 7. **Making of AHAM** (`#making`, `renderMaking`):
    - **Aside:** big title, अहम्, tagline, logline, stage progress bar, Share / trailer / watch buttons (`actionsHTML`) and a credits grid (`creditsHTML`, A24-style).
    - **Stages reel** (`stagesHTML`): Script, Pre-production, Production, Post, Release. Each has a status (done / rolling / next), a script excerpt on a paper page, sticky notes, and media. **Media with an empty `src` is hidden.**
-   - **"AHAM, by the numbers"** (`renderNumbers`): solid tiles counting 23, 29, 7, 1, and **0 lighting kits (counts down from 12)**.
+   - **"AHAM, by the numbers"** (`renderNumbers`): solid tiles counting 23, 29, 7, **2 worlds of light**, and **0 sets built (counts down from 29: every scene is a real place)**.
+   - Stages with no summary, date line, excerpt, notes or media are skipped (`stageHasContent`); the progress bar still counts every stage.
    - **"The idea underneath"** (`yugaHTML`, `yugaScroll`, `Realm`, `initRealms`). This is the signature section; see section 6.
    - **Characters** (`castHTML`, `initPeople`): clickable cards (portrait or initials, "View profile"). A card opens the `#person` dialog with a lens-iris `clip-path` reveal from the tapped card, a colour-bar wipe over the film-frame portrait, then the details rise in; previous/next, arrow keys, swipe and Escape work. Profile data: `cast[].photo`, `actor`, `about`.
    - A production meter on a rolling stage (`stage.progress`, "60% shot").
-7b. **Casting call** (`#casting`, `renderCallsheet`): its own section after the making-of. A paper call sheet for `SITE.callsheet.film` (currently **Nanhi Muskaan**: child artist, female vocalist). "Apply" pre-fills the form with "A role in one of our films".
+7b. **Casting call** (`#casting`, `renderCallsheet`): its own section after the making-of. A paper call sheet for `SITE.callsheet.film` (currently **Nanhi Muskaan**: child artist, female vocalist). "Apply" pre-fills the form with "A role in one of my films".
 8. **Notes from the set** (`#journal`, `renderJournal`). Production-diary cards. On desktop (≥900px) the section pins and the cards move sideways as you scroll down; on phones it's a native swipe row.
 9. **Shunyaakar Sound** (`#music`, `renderSound`, `initMusic`). Solid blue section with a collaboration panel (**AHAM's music and songs are made with Genvox Studio, founded by Uday Singh Sisodia**; from `SITE.sound`), a live equaliser canvas, a "Play the damru" button, and a tracklist (mp3 from `src`, or `synth: "damru"`).
-10. **Work with us** (`#services`, `renderServices`). Huge rows that flood with their colour on hover; clicking pre-fills the form's project type.
-11. **Personal portfolio** (`#portfolio`). Solid marigold section; the pinned collage swings in with 3D scroll-scrub (`data-scrub`, `initScrub`) and links to `brand.portfolioUrl`.
+10. **Work with us** (`#services`, `renderServices`, `renderMethod`). Five huge rows (films, music videos, cinematography, edit and colour, photography; **no music/score service**, owner's choice Oct 2026) that flood with their colour on hover; clicking pre-fills the form's project type. Below them, the **"How I shoot"** block from `SITE.method` (title, Caveat line, three numbered points; it fades in via the `initSplit` watch list).
+11. **Personal portfolio** (`#portfolio`). Solid marigold section; the pinned frame swings in with 3D scroll-scrub (`data-scrub`, `initScrub`) and links to `brand.portfolioUrl`. It shows `brand.portfolioImage` when set, otherwise a **name card** (`.pinned-card`: "Mayank Sharma", "Photography · Design · Film", flat Venn circles like the film posters). The old `portfolio-collage.webp` (another designer's text) is no longer used.
 12. **About** (`#about`). Polaroid portrait: `brand.founderPhoto`, or an "MS" monogram until a photo exists. Plus three sticky notes.
 13. **Contact finale** (`#contact`):
     - `.contact-stage` (230vh, pinned; `initFinale`): pink floods out from a circle, each word of "Let's make something from zero." flies in from in front of the lens, then a ring draws around "zero". A rotating "Open for new projects" seal lands on desktop.
-    - `.contact-body`: the **contact form** (→ `/api/contact`), plus the email, a live clock, current status and socials.
+    - `.contact-body`: the **contact form** (→ `/api/contact`) with a privacy line, plus the email, a live clock, current status and socials. Socials render only when the URL has a profile path (not a platform home page); WhatsApp appears only when `brand.whatsapp` is set (floating button bottom-right, a contact row and a footer link). An empty or placeholder email hides every email link.
 14. **Footer:**
-    - "Letters from the set", the newsletter sign-up (→ `/api/subscribe`).
+    - "Letters from the set", the newsletter sign-up (→ `/api/subscribe`), with the note "Your email is stored only to tell you about new work. It's never shared." (sign-ups are never emailed; see section 14).
     - Explore and Studio columns, including the live Jaipur clock.
     - **SHUNYAAKAR assembled from particles** (`initFooterMark`, canvas in `#footerMark`). The particles from the opening zero fly in left-to-right and form the name as you reach the bottom; the cursor scatters the grains and they spring back.
 15. **Overlays:**
@@ -163,9 +164,9 @@ Implementation: `yugaHTML` builds the pinned stage (`.yuga-pin` 520vh, `.yuga-st
 
 | System | What it does | Notes |
 |---|---|---|
-| `Sound` | Web Audio synth: `clap`, `damruHit`, `damru`, `roll`, `whoosh`, `boom(big)`, `droneOn/Off` (tanpura-like), `duck(v,t)`, plus an `analyser` for the EQ | `Sound.enabled` defaults to true, but nothing plays until `Sound.init()` runs on a user gesture (the gate). Always guard with `if (Sound.enabled && Sound.ctx)`. |
-| `setSound(on)` | Toggles state, the speaker button's aria, and the drone | Used by the gate and the nav speaker button. Sound suspends when the tab is hidden. |
-| `Lock` + `glideTo` | Blocks wheel, touch, keys and scrollbar drags; holds `scrollY` | Used by the loader gate and the clap. Must always be unlocked. |
+| `Sound` | Web Audio synth: `clap`, `damruHit`, `damru`, `roll`, `whoosh`, `boom(big)`, `awaken`, `droneOn/Off` (tanpura-like), `duck(v,t)`, plus an `analyser` for the EQ | `Sound.enabled` defaults to **false**; the speaker button (`setSound`) turns it on and runs `Sound.init()`. Always guard with `if (Sound.enabled && Sound.ctx)`. |
+| `setSound(on)` | Toggles state, the speaker button's aria, and the drone | Used by the nav speaker button. Sound suspends when the tab is hidden. |
+| `Lock` + `glideTo` | Blocks wheel, touch, keys and scrollbar drags; holds `scrollY` | Used by the loader countdown and the clap. Must always be unlocked. |
 | `Realm` | State for the yuga canvas (`g`, `final`, `lit`, `onYuga`, `onFinal`) | See section 6. |
 | `timecode()` | 24 fps SMPTE-style timecode | Hero viewfinder and the slate (freezes on the clap). |
 | `initSplit` | Section titles (`.h2`, `.cast-title`) get the "colour bar wipes across, letters flip up in 3D" reveal (`.tw`); blocks get `.rise` | Bar colour per section via `--wipe`. |
@@ -184,10 +185,10 @@ Boot order is at the bottom of `main.js` (`DOMContentLoaded`). Render functions 
 
 ## 8. `js/content.js` schema (`window.SITE`)
 
-- `brand`: `name`, `founder`, `location`, `email` (`hello@shunyaakarstudios.in`), `portfolioUrl`, `showreelUrl`, `founderPhoto`, `replyTime`, `timezone`, `socials[]` (**placeholder links, to replace**)
+- `brand`: `name`, `founder`, `location`, `email` (`hello@shunyaakarstudios.in`), `portfolioUrl`, `portfolioImage` (empty = name card), `whatsapp` (digits with country code; empty = hidden), `showreelUrl`, `founderPhoto`, `replyTime`, `timezone`, `socials[]` (**placeholder links, to replace**; hidden until they point to a profile)
 - `status`: `{ film, stage, short?, detail }`, shown in the hero (`short`), contact and footer
 - `manifesto`: a string; `*word*` gets a highlight
-- `divisions[]`: `{ name, status: "live"|"soon", tone, text, link?, linkText?, progress? }`
+- `divisions[]`: `{ name, status: "live"|"soon", tone, text, link?, linkText?, stage? }` (`stage` is the label on "soon" worlds, e.g. "Planned")
 - `films[]`, each with:
   - `id`, `featured` (only **one** film may be `true`; it gets the Making-of section), `title`, `devanagari`, `year`, `genre`, `status`, `accent`, `accent2`, `poster`
   - `tagline`, `logline`, `note`, `trailer`, `watch[{label,url}]`, `release`, `credits[{role,name}]`, `numbers[{value,from?,label}]`
@@ -199,6 +200,7 @@ Boot order is at the bottom of `main.js` (`DOMContentLoaded`). Render functions 
 - `sound`: `{ intro, collab: { film, name, founder, text } }` for the Shunyaakar Sound section.
 - `services[]`: `{ title, text, type, tone }`. **`type` must exactly match an `<option>` in the contact form's `<select name="project">` in index.html.**
 - `tracks[]`: `{ title, meta, status, src, synth? }`
+- `method`: `{ title, line, points[{title, text}] }` for the "How I shoot" block under Work with us.
 
 ---
 
@@ -248,7 +250,8 @@ Studied: A24, Blumhouse, Yash Raj Films, Somesuch, Nexus Studios, DNEG. Borrowed
 2. In `index.html`, change the `og:image` and `twitter:image` meta tags to the **absolute live URL** of `assets/img/share-card.png`.
 3. Deploy on Render with the Blueprint (`render.yaml`) and set `DATABASE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`; delete `ADMIN_PASSWORD` after the first sign-in (see `backend/README.md`). The admin row for the owner's email already exists in `admin_users` without a password.
 4. Add real assets as they exist: stills and storyboards (stage `media`), the founder photo, the AHAM poster, trailer and showreel embed URLs, and mp3 tracks.
-5. **Portfolio collage** (`assets/img/portfolio-collage.webp`) contains another designer's text ("4+ years of experience…"). Replace it with the owner's own image.
+5. Portfolio: the collage is gone; a name card shows until the owner adds `brand.portfolioImage`.
+5b. Set `brand.whatsapp` if the owner wants the WhatsApp button.
 6. Close the call sheet (`callsheet.open:false`) when AHAM is cast.
 7. Optional: a free uptime monitor on `/api/health` every 10 minutes keeps the free Render service and Supabase project awake.
 
@@ -259,7 +262,9 @@ Studied: A24, Blumhouse, Yash Raj Films, Somesuch, Nexus Studios, DNEG. Borrowed
 - **Keep it light.** The frontend stays framework-free and build-free (it must still work from Live Server). The backend stays on Node built-ins plus `pg` and `nodemailer`; don't add frameworks (Express etc.) or extra packages without the owner asking. Regenerate `backend/package-lock.json` whenever dependencies change (Render runs `npm ci`).
 - **Content goes in `content.js`**; don't hard-code film data in `main.js` or the HTML.
 - **Respect sections 2 and 3.** Flat colours, the brand palette, the five fonts, cinematic motion. No gradient washes, no party effects in the AHAM section, no multicolour footer, no cursor circle.
-- **Copy style:** plain, confident, sentence case; no filler; the owner's first-person voice ("I") on About, contact and journal. Don't invent facts about the owner or the films; ask.
+- **Copy style:** plain, confident, sentence case; no filler; **"I", not "we"**, everywhere (the studio is one person; exceptions: the label "Work with us" and the credit "Shunyaakar Films"). Don't invent facts about the owner or the films; ask.
+- **Frame the method as a strength, not a lack of gear** (Oct 2026): real places, light designed from what each place has, a small crew, every frame planned. Never write "no budget", "no lights", "no lighting kit", "one camera" or similar. The "zero" idea is about where a story starts, not about equipment.
+- **Keyframe names must be unique** in `css/style.css`. A reused name (`sweep`, `rise`) once silently replaced the countdown sweep and the hero entrance.
 - **Mobile matters:** test at 390px width. There must be **no horizontal overflow**: `document.documentElement.scrollWidth` must equal `innerWidth`. Rotated or tilted elements before their reveal have caused overflow before; `.making` uses `overflow-x: clip` for that reason.
 - **Keep accessibility:** `prefers-reduced-motion` paths, visible `:focus-visible`, `aria` on dialogs and buttons, and `lang="hi"` on Devanagari.
 - **Scroll locks must always release.** Any new locked moment has to call `Lock.unlock()` on every path.
@@ -276,7 +281,7 @@ Studied: A24, Blumhouse, Yash Raj Films, Somesuch, Nexus Studios, DNEG. Borrowed
 
 Headless Chromium with Playwright:
 - Serve the folder over HTTP (`python -m http.server`), because forms and relative paths behave differently over `file://`.
-- Click `#enterSound` after about 2.3 s to pass the gate.
+- The countdown finishes by itself after about 1.2 s (skipped when `sessionStorage.sk_seen` is set).
 - Add `html{scroll-behavior:auto!important}` before scripted scrolling.
 - Screenshot pinned sections at several scroll fractions of `(el.offsetHeight - innerHeight)`.
 - Check `scrollWidth === innerWidth` and zero `pageerror` events at 1440×900 and 390×844.

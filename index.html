@@ -54,22 +54,13 @@
 <body>
 
   <!-- ========== LOADER: film-leader countdown ========== -->
-  <div class="loader" id="loader" role="dialog" aria-modal="true" aria-label="Enter Shunyaakar">
+  <div class="loader" id="loader" aria-hidden="true">
     <div class="leader" aria-hidden="true">
       <span class="leader-sweep"></span>
       <span class="leader-cross"></span>
       <span class="leader-num" id="leaderNum">3</span>
     </div>
     <p class="loader-word" lang="hi" aria-hidden="true">शून्य से</p>
-    <div class="gate" id="gate">
-      <p class="gate-title">Shunyaakar</p>
-      <button class="gate-btn" id="enterSound" type="button">
-        <span class="gate-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-        Enter with sound
-      </button>
-      <button class="gate-quiet" id="enterQuiet" type="button">Enter without sound</button>
-      <p class="gate-note">Best with headphones. You can turn sound off any time with the speaker button.</p>
-    </div>
   </div>
 
   <a class="skip" href="#main">Skip to content</a>
@@ -93,7 +84,7 @@
         </ul>
       </nav>
       <div class="nav-actions">
-        <button class="icon-btn sound-btn" id="soundBtn" type="button" aria-pressed="true" aria-label="Turn sound off">
+        <button class="icon-btn sound-btn" id="soundBtn" type="button" aria-pressed="false" aria-label="Turn sound on">
           <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path class="wave" d="M16 8.5c1.2 1 1.8 2.2 1.8 3.5s-.6 2.5-1.8 3.5M18.5 6c2 1.6 3 3.6 3 6s-1 4.4-3 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="mute" d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         </button>
         <a class="btn btn-line nav-cta" href="#contact">Start a project</a>
@@ -122,13 +113,13 @@
         <div class="hero-card">
           <p class="hero-deva" lang="hi">शून्याकार</p>
           <h1 class="wordmark" aria-label="Shunyaakar"><span class="wm" aria-hidden="true"></span></h1>
-          <p class="hero-lede">A production house from Jaipur. We take films and music from the first page of a script to the final mix, and we show you every step on the way.</p>
+          <p class="hero-lede">A production house from Jaipur. I take films and their music from the first page of a script to the final mix, and I show every step on the way.</p>
           <div class="hero-cta">
             <button class="btn btn-brass" id="reelBtn" type="button">
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5v14l12-7z" fill="currentColor"/></svg>
               <span id="reelBtnText">Follow the making of AHAM</span>
             </button>
-            <a class="btn btn-line" href="#films">See the films</a>
+            <a class="btn btn-line" href="#services">Work with us</a>
           </div>
         </div>
 
@@ -163,7 +154,7 @@
       <div class="wrap">
         <div class="studio-head">
           <h2 class="h2" id="studioTitle">One house, many worlds</h2>
-          <p class="lead">Shunyaakar means "the shape of zero". Every project starts there: a blank page, no budget, one camera. Two worlds are open today. The rest are being built.</p>
+          <p class="lead">Shunyaakar means "the shape of zero". Every project starts there: a blank page and a real place. Films and music are open today, and VFX and animation come next.</p>
         </div>
         <div class="worlds" id="worlds"></div>
       </div>
@@ -253,7 +244,7 @@
         <div class="journal-track" id="journalTrack">
           <div class="journal-intro">
             <h2 class="h2" id="journalTitle">Notes from the set</h2>
-            <p class="lead">A production diary, written while it happens. The wins, the problems, and what a film with no budget actually looks like from the inside.</p>
+            <p class="lead">A production diary, written while it happens. The wins, the problems, and how a film gets made on real streets, seen from the inside.</p>
             <p class="journal-hint" aria-hidden="true"><span></span>Keep scrolling</p>
           </div>
           <div class="journal-cards" id="journalCards"></div>
@@ -292,23 +283,28 @@
       <div class="wrap">
         <div class="services-head">
           <h2 class="h2" id="servicesTitle">Work with us</h2>
-          <p class="lead">The same hands that make our films are available for yours. Pick what you need and tell me about it.</p>
+          <p class="lead">The hands that make these films are available for yours. Pick what you need and tell me about it.</p>
         </div>
         <ul class="service-list" id="serviceList"></ul>
+        <div class="method" id="method" hidden></div>
       </div>
     </section>
 
     <!-- ========== PERSONAL PORTFOLIO LINK ========== -->
     <section class="section personal" id="portfolio" aria-labelledby="personalTitle">
       <div class="wrap personal-grid">
-        <a class="pinned" data-scrub data-href="brand.portfolioUrl" href="https://shunyaakar.netlify.app" target="_blank" rel="noopener">
+        <a class="pinned" data-scrub data-href="brand.portfolioUrl" href="https://shunyaakar.netlify.app" target="_blank" rel="noopener" aria-label="Open Mayank Sharma's personal portfolio in a new tab">
           <span class="pin" aria-hidden="true"></span>
-          <img src="assets/img/portfolio-collage.webp" alt="Portfolio collage. Opens my personal portfolio in a new tab." width="736" height="920" loading="lazy">
+          <span class="pinned-card" id="portfolioCard" aria-hidden="true">
+            <span class="pc-circles"><i></i><i></i></span>
+            <span class="pc-name">Mayank Sharma</span>
+            <span class="pc-sub">Photography · Design · Film</span>
+          </span>
           <span class="pinned-sticker" aria-hidden="true">Open</span>
         </a>
         <div class="personal-copy">
           <h2 class="h2" id="personalTitle">Before the studio, there was a camera</h2>
-          <p class="lead">Photography, design and travel work: sadhus and artisans, architecture at night, industry up close. It all lives on my personal portfolio.</p>
+          <p class="lead">Photography, graphic design and film work: sadhus and artisans, architecture at night, industry up close. It all lives on my personal portfolio.</p>
           <a class="btn btn-brass" data-href="brand.portfolioUrl" href="https://shunyaakar.netlify.app" target="_blank" rel="noopener">Open my portfolio</a>
         </div>
       </div>
@@ -324,7 +320,7 @@
         <div class="about-copy">
           <h2 class="h2" id="aboutTitle">The person behind the zero</h2>
           <p class="lead">I'm Mayank Sharma, a filmmaker, photographer and creative director from Jaipur. Shunyaakar started as the name on my photographs. Now it's the house where my films and music get made, and this site is its open notebook.</p>
-          <p>I write, direct, shoot and cut my own films, mostly on Sundays, mostly with no lighting kit and a lot of stubbornness. Everything I learn along the way goes up here, from the first draft to the final grade.</p>
+          <p>I write, direct, shoot and cut my own films. I shoot in real places, in the light they already have, and plan every frame before the camera rolls. Everything I learn along the way goes up here, from the first draft to the final grade.</p>
           <ul class="stickies">
             <li class="sticky s1">Writer, director, cinematographer, editor</li>
             <li class="sticky s2">Natural light is part of the crew.</li>
@@ -348,7 +344,7 @@
               <circle cx="150" cy="150" r="62" class="seal-core"/>
               <path class="seal-arrow" d="M150 116 V184 M122 158 L150 186 L178 158"/>
             </svg>
-            <p class="lead contact-lead">Short films, music videos, scores, brand stories, or a role in AHAM. Tell me what you're making and I'll reply <span data-bind="brand.replyTime">within two days</span>.</p>
+            <p class="lead contact-lead">Short films, music videos, brand stories, photography, or a role in one of my films. Tell me what you're making and I'll reply <span data-bind="brand.replyTime">within two days</span>.</p>
           </div>
         </div>
       </div>
@@ -367,9 +363,8 @@
                 <option>Music video</option>
                 <option>Cinematography</option>
                 <option>Edit and colour</option>
-                <option>Music or score</option>
                 <option>Photography</option>
-                <option>A role in one of our films</option>
+                <option>A role in one of my films</option>
                 <option>Something else</option>
               </select>
             </label>
@@ -378,6 +373,7 @@
             <div class="form-foot">
               <button class="btn btn-ink" type="submit" id="contactSubmit">Send it</button>
               <p class="form-note">I reply to every message, <span data-bind="brand.replyTime">within two days</span>.</p>
+              <p class="form-privacy">Your details are used only to reply to you. They are never shared.</p>
             </div>
             <div class="form-done" id="formDone" hidden>
               <p class="form-done-stamp">Received</p>
@@ -412,6 +408,7 @@
             <input id="lettersEmail" name="email" type="email" placeholder="Your email" autocomplete="email" required>
             <button class="btn btn-brass" type="submit">Subscribe</button>
           </form>
+          <p class="letters-privacy">Your email is stored only to tell you about new work. It's never shared.</p>
         </div>
         <nav class="footer-col" aria-label="Footer">
           <p class="footer-h">Explore</p>

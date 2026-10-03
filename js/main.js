@@ -26,7 +26,7 @@
      SOUND ENGINE (Web Audio, no files needed)
      ------------------------------------------------------------------- */
   const Sound = {
-    ctx: null, master: null, analyser: null, enabled: true,
+    ctx: null, master: null, analyser: null, enabled: false, // off until the speaker button is pressed
     init() {
       if (this.ctx) { if (this.ctx.state === "suspended") this.ctx.resume(); return this.ctx; }
       const AC = window.AudioContext || window.webkitAudioContext;
@@ -169,15 +169,54 @@
     const b = S.brand || {};
     $$("[data-bind]").forEach(el => { const v = get(S, el.dataset.bind); if (v) el.textContent = v; });
     $$("[data-href]").forEach(el => { const v = get(S, el.dataset.href); if (v) el.href = v; });
-    if (b.email) $$("#contactMail, .js-mail").forEach(m => { m.href = "mailto:" + b.email; m.textContent = b.email; });
+    // email: never show an empty or placeholder address
+    if (hasEmail()) $$("#contactMail, .js-mail").forEach(m => { m.href = "mailto:" + b.email; m.textContent = b.email; });
+    else {
+      $$(".contact-kicker, #contactMail").forEach(el => { el.hidden = true; });
+      $$(".js-mail").forEach(el => { (el.closest("li") || el).hidden = true; });
+    }
+    // socials: only links to an actual profile (a path after the domain), not a platform's home page
     const soc = $("#socials");
-    if (soc && b.socials) soc.innerHTML = b.socials.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a></li>`).join("");
+    const realSocials = (b.socials || []).filter(x => /^https?:\/\/[^/]+\/[^/?#]+/.test(x.url || ""));
+    if (soc) {
+      soc.innerHTML = realSocials.map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.label)}</a></li>`).join("");
+      soc.hidden = !realSocials.length;
+    }
+    // portfolio: the owner's own cover image, or the typographic name card
+    if (b.portfolioImage && $("#portfolioCard")) {
+      $("#portfolioCard").outerHTML = `<img src="${esc(b.portfolioImage)}" alt="" width="736" height="920" loading="lazy">`;
+    }
+    renderWhatsApp();
     const y = $("#year"); if (y) y.textContent = new Date().getFullYear();
     if (b.founderPhoto) {
       $("#founderPhoto .portrait-img").innerHTML = `<img src="${esc(b.founderPhoto)}" alt="${esc(b.founder || "Founder")}" loading="lazy">`;
     }
     const featured = (S.films || []).find(f => f.featured);
     $("#reelBtnText").textContent = b.showreelUrl ? "Watch the showreel" : featured ? `Follow the making of ${featured.title}` : "See the films";
+  }
+
+  const PLACEHOLDER_EMAIL = "hello@shunyaakar.com";
+  const hasEmail = () => { const e = ((S.brand && S.brand.email) || "").trim(); return !!e && e !== PLACEHOLDER_EMAIL; };
+
+  /* -------------------------------------------------------------------
+     WHATSAPP — only when brand.whatsapp holds a number
+     ------------------------------------------------------------------- */
+  const ICON_CHAT = '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 0 0-7.4 12.7L3.5 20.5l4.4-1.1A8.5 8.5 0 1 0 12 3.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.6 9.4c.2 2.6 2.3 4.8 5 5.1l1.1-1.2 1.8.8-.4 1.6c-3.9.3-7.6-3.4-7.3-7.3l1.6-.4.8 1.8z" fill="currentColor"/></svg>';
+  function renderWhatsApp() {
+    const num = String((S.brand && S.brand.whatsapp) || "").replace(/\D/g, "");
+    if (num.length < 8) return;
+    const href = `https://wa.me/${num}?text=${encodeURIComponent("Hi Mayank, I found Shunyaakar and want to talk about a project.")}`;
+    const fab = document.createElement("a");
+    fab.className = "wa-fab"; fab.href = href; fab.target = "_blank"; fab.rel = "noopener";
+    fab.setAttribute("aria-label", "Message Shunyaakar on WhatsApp"); fab.innerHTML = ICON_CHAT;
+    document.body.append(fab); document.body.classList.add("has-wa");
+    const facts = $(".contact-facts");
+    if (facts) facts.insertAdjacentHTML("beforeend", `<div><dt>WhatsApp</dt><dd><a href="${esc(href)}" target="_blank" rel="noopener">Message me</a></dd></div>`);
+    const studio = $(".footer-status"); // footer "Studio" list
+    if (studio) studio.insertAdjacentHTML("afterend", `<li><a href="${esc(href)}" target="_blank" rel="noopener">WhatsApp</a></li>`);
+    // keep it out of the way of the countdown and of open overlays
+    const sync = () => fab.classList.toggle("is-on", !$("#loader") && $$(".room, .person").every(o => o.hidden));
+    sync(); new MutationObserver(sync).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
   }
 
   /* -------------------------------------------------------------------
@@ -198,7 +237,7 @@
           <p>${esc(d.text)}</p>
           ${live
             ? `<p class="world-link" style="margin-top:1.2rem">${esc(d.linkText || "Explore")} ${ICON_ARROW}</p>`
-            : `<p class="world-soon" style="margin-top:1.2rem"><span class="world-soon-dot" aria-hidden="true"></span>In the works</p>`}
+            : `<p class="world-soon" style="margin-top:1.2rem"><span class="world-soon-dot" aria-hidden="true"></span>${esc(d.stage || "Planned")}</p>`}
         </div>
       </${tag}>`;
     }).join("");
@@ -252,8 +291,10 @@
     return `<figure class="shot"><div class="shot-img">${inner}</div>${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
   }
 
+  const stageHasContent = s => !!(s.summary || s.when || s.excerpt || (s.notes && s.notes.length) || (s.media || []).some(m => m.src));
   function stagesHTML(film) {
     return (film.stages || []).map((s, i) => {
+      if (!stageHasContent(s)) return "";
       const st = ["done", "rolling", "next"].includes(s.status) ? s.status : "next";
       return `<li class="stage is-${st}">
         <span class="stage-marker" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
@@ -660,33 +701,32 @@
      LOADER — film-leader countdown
      ------------------------------------------------------------------- */
   function runLoader(done) {
-    const loader = $("#loader"), gate = $("#gate");
-    Lock.lock(window.scrollY);
-    const finish = withSound => {
+    // film-leader countdown, then straight into the site (silent until the speaker is pressed);
+    // skipped on repeat visits in the same tab and with reduced motion
+    const loader = $("#loader");
+    if (!loader) { document.body.classList.add("is-loaded"); done && done(); return; }
+    const finish = () => {
       if (loader.classList.contains("is-done")) return;
-      setSound(withSound, true);
-      if (withSound && Sound.ctx) Sound.boom(false);
+      try { sessionStorage.setItem("sk_seen", "1"); } catch (e) { /* storage blocked */ }
       loader.classList.add("is-done");
       document.body.classList.add("is-loaded");
       Lock.unlock();
       setTimeout(() => loader.remove(), 1000);
       done && done();
     };
-    $("#enterSound").addEventListener("click", () => finish(true));
-    $("#enterQuiet").addEventListener("click", () => finish(false));
-    const openGate = () => {
-      loader.classList.add("is-gate");
-      setTimeout(() => $("#enterSound").focus({ preventScroll: true }), 50);
-    };
-    if (REDUCE) { openGate(); return; }
+    let seen = false;
+    try { seen = sessionStorage.getItem("sk_seen") === "1"; } catch (e) { /* storage blocked */ }
+    if (REDUCE || seen) { finish(); return; }
+    Lock.lock(window.scrollY);
     const num = $("#leaderNum");
     let n = 3;
     const tick = setInterval(() => {
       n -= 1;
-      if (n <= 0) { clearInterval(tick); openGate(); return; }
+      if (n <= 0) { clearInterval(tick); finish(); return; }
       num.textContent = n;
-    }, 600);
+    }, 400);
   }
+
 
 
   /* -------------------------------------------------------------------
@@ -868,7 +908,7 @@
     });
     // 2) Copy blocks and groups that rise / pop in with a stagger
     $$(".personal-copy, .about-copy, .music-grid > div, .studio-head, .services-head, .footer-grid").forEach(el => el.classList.add("rise"));
-    const watch = $$(".tw, .rise, .stickies, .tracks, .roles, .service-list, .callsheet, .stage-meter");
+    const watch = $$(".tw, .rise, .stickies, .tracks, .roles, .service-list, .callsheet, .stage-meter, .method");
     if (REDUCE) { watch.forEach(el => el.classList.add("in")); return; }
     const io = new IntersectionObserver(ens => ens.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } }), { rootMargin: "0px 0px -15% 0px" });
     watch.forEach(el => io.observe(el));
@@ -1680,7 +1720,7 @@
         </dl>
       </div>
       <table class="cs-table">
-        <thead><tr><th scope="col">Role</th><th scope="col">Who we're looking for</th><th scope="col"><span class="sr-only">Apply</span></th></tr></thead>
+        <thead><tr><th scope="col">Role</th><th scope="col">Who I'm looking for</th><th scope="col"><span class="sr-only">Apply</span></th></tr></thead>
         <tbody>${c.roles.map(r => `<tr>
           <th scope="row"><span class="cs-type is-${esc((r.type || "").toLowerCase())}">${esc(r.type || "")}</span>${esc(r.role)}</th>
           <td>${esc(r.who)}</td>
@@ -1692,7 +1732,7 @@
     </div>`;
     el.addEventListener("click", e => {
       const b = e.target.closest("[data-apply]"); if (!b) return;
-      prefillContact("A role in one of our films", `I'd like to be considered for ${b.dataset.apply} in ${c.film}.\n\nAbout me: `);
+      prefillContact("A role in one of my films", `I'd like to be considered for ${b.dataset.apply} in ${c.film}.\n\nAbout me: `);
     });
   }
 
@@ -1739,6 +1779,20 @@
   /* -------------------------------------------------------------------
      WORK WITH US — giant rows that flood with colour
      ------------------------------------------------------------------- */
+  function renderMethod() {
+    const el = $("#method"), m = S.method;
+    if (!el || !m || !m.points || !m.points.length) return;
+    el.innerHTML = `
+      ${m.title ? `<h3 class="method-title">${esc(m.title)}</h3>` : ""}
+      ${m.line ? `<p class="method-line">${esc(m.line)}</p>` : ""}
+      <ol class="method-points">${m.points.map((pt, i) => `<li style="--i:${i}">
+        <span class="method-num" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
+        <h4>${esc(pt.title)}</h4>
+        <p>${esc(pt.text)}</p>
+      </li>`).join("")}</ol>`;
+    el.hidden = false;
+  }
+
   function renderServices() {
     const el = $("#serviceList"), list = S.services;
     if (!el || !list || !list.length) { if ($("#services")) $("#services").hidden = true; return; }
@@ -1804,8 +1858,9 @@
         if (err.told) { toast(err.message); return; }
         const d = new FormData(contact);
         const body = encodeURIComponent(`${d.get("message") || ""}\n\n${d.get("name") || ""}\nProject: ${d.get("project") || ""}\nTimeline: ${d.get("timeline") || ""}`);
-        toast("The form only works on the live site. Opening your email app instead.");
-        if (email) setTimeout(() => { location.href = `mailto:${email}?subject=${encodeURIComponent("Project: " + (d.get("project") || ""))}&body=${body}`; }, 900);
+        if (!hasEmail()) { toast("The form isn't connected yet. Please message on Instagram or WhatsApp."); return; } // keeps what they typed
+        toast("The form couldn't reach the studio. Opening your email app instead.");
+        setTimeout(() => { location.href = `mailto:${email}?subject=${encodeURIComponent("Project: " + (d.get("project") || ""))}&body=${body}`; }, 900);
       });
     });
 
@@ -1814,10 +1869,10 @@
       e.preventDefault();
       const btn = $("button", letters); btn.disabled = true;
       send(letters).then(() => {
-        letters.innerHTML = `<p class="letters-done">You're on the list. The first letter comes from the set.</p>`;
+        letters.innerHTML = `<p class="letters-done">You're on the list. Thank you.</p>`;
       }).catch(err => {
         btn.disabled = false;
-        toast(err.told ? err.message : "Sign-up works once the site is live on Netlify.");
+        toast(err.told ? err.message : "Sign-up isn't available right now. Please try again later.");
       });
     });
   }
@@ -1976,6 +2031,7 @@
     renderSound();
     renderJournal();
     renderServices();
+    renderMethod();
     initFooterMark();
     initStatus();
     initManifesto();
