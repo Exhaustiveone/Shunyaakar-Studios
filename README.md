@@ -124,3 +124,11 @@ email app; `/desk` shows a demo with sample data.
 ## Image tips
 
 Export stills at ~1600 px wide as `.webp` or `.jpg` (quality ~80) to keep the site fast.
+
+## Search (SEO)
+
+The site tells Google its name ("Shunyaakar Studios"), its other spellings, its address and its icon through
+the `<head>` of `index.html`, `robots.txt`, `sitemap.xml` and the icons in `assets/icons/`. The main address is
+`https://www.shunyaakarstudios.in/`. When you add your Instagram / YouTube / LinkedIn links, also add them to
+`"sameAs"` in the structured data in `index.html`, so Google connects them to the studio.
+

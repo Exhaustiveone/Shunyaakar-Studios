@@ -1,0 +1,10 @@
+# Repo-only files: keep them out of the public site on Vercel
+CLAUDE.md
+README.md
+BACKEND.md
+requirements.md
+render.yaml
+backend/
+.claude/
+.env
+.env.*

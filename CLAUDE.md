@@ -323,3 +323,17 @@ Rebuilt 2 Oct 2026 from the owner's `requirements.md`. Owner-facing setup and se
 - **Replies by email:** `POST /api/desk/enquiries/:id/reply` sends via Nodemailer over SMTP (`backend/src/mailer.js`; env `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` as a Gmail App Password, `MAIL_FROM`, `MAIL_REPLY_TO`), only to the enquiry's stored email; logged in `enquiry_replies`; 40/hour. Render's free plan blocks outbound SMTP. This is for enquiries only; newsletter sign-ups are still never emailed.
 - **Desk UI** (`desk/desk.js`): it calls `/api/auth/me` on load, then `/api/desk/overview`; it holds no tokens. The Newsletter tab is read-only (search, delete; no export). **Demo mode** (`desk/demo.js`, login `demo@shunyaakar.test` / `shunyaakar-demo`) loads only on `localhost` when the API is unreachable, i.e. Live Server; it can never appear on the real site.
 - **Testing:** Node isn't installed on the owner's Mac. A Node binary in the session scratchpad was used to run the real server against Supabase (static allow-list and traversal, headers, gzip/304, forms incl. injection strings and limits, login and lockout, timing, CSRF, logout, the desk in a browser at 1024px and 375px, the main site under the CSP), and test rows were deleted afterwards. Use addresses `@example.com` or `@example.test` for test data so it can be cleaned up.
+
+---
+
+## 15. SEO (Oct 2026)
+
+Goal: rank first for "Shunyaakar Studios" and its spellings ("Shunyaakar", "Shunyakar Studios", "Shunya Studios", "शून्याकार").
+
+- **Canonical address:** `https://www.shunyaakarstudios.in/` (Vercel redirects the bare domain to www). `index.html` has `<link rel="canonical">` to it. The copies at `shunyaakar-studios.vercel.app` (`X-Robots-Tag: noindex` via `vercel.json`) and `shunyaakar-studios.onrender.com` (canonical tag) must never compete with it.
+- **Name everywhere:** "Shunyaakar Studios" in `<title>`, `og:site_name`, the `WebSite` / `Organization` structured data, the h1's `aria-label`, the hero lede and the footer. Keep these consistent; Google picks the site name shown in results from them.
+- **Structured data** (one JSON-LD `@graph` in `index.html`): `WebSite` (name + `alternateName` spellings), `Organization` (logo `assets/icons/icon-512.png`, email, Jaipur address, founder), `Person` (Mayank Sharma, `sameAs` portfolio), `WebPage`, `Movie` (AHAM). **When real social profiles exist, add their URLs to `Organization.sameAs`** (and the founder's to `Person.sameAs`). Validate after edits (the JSON must parse).
+- **Files:** `robots.txt` (allows all, disallows `/desk/` and `/api/`, points to the sitemap), `sitemap.xml` (one URL; **update `<lastmod>`** when content changes meaningfully), `site.webmanifest`, `favicon.ico` (48px PNG-in-ICO at the root), `assets/icons/` (SVG, 48/192/512 PNG, apple-touch 180). The icons are the ring mark: ink square, marigold ring.
+- **`.vercelignore`** keeps repo-only files (`CLAUDE.md`, `README.md`, `BACKEND.md`, `render.yaml`, `backend/`) off the public Vercel site; before it they were reachable and indexable.
+- **`<noscript>` summary** at the top of `<body>`: a short plain-text description for crawlers and visitors without JavaScript. Keep it factual and in step with the site.
+- **Meta description** is about 160 characters; keep it under ~160 so Google shows it whole.

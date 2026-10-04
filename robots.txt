@@ -1,0 +1,7 @@
+# Shunyaakar Studios
+User-agent: *
+Allow: /
+Disallow: /desk/
+Disallow: /api/
+
+Sitemap: https://www.shunyaakarstudios.in/sitemap.xml

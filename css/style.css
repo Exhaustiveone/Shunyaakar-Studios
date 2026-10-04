@@ -1356,3 +1356,9 @@ html.is-locked { overscroll-behavior: none; }
 .has-wa .footer { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
 .wa-fab:hover { transform: scale(1.06); }
 @media (prefers-reduced-motion: reduce) { .wa-fab { transition: none; transform: none; } }
+
+/* plain summary shown only when JavaScript is off (also read by simple crawlers) */
+.noscript { max-width: 46rem; margin: 0 auto; padding: 7rem var(--gutter) 3rem; color: var(--bone); }
+.noscript h2 { font-family: var(--f-display); font-weight: 800; font-size: clamp(2rem, 5vw, 3rem); margin: 0 0 1rem; }
+.noscript p { color: #DCD5EA; }
+.noscript a { color: var(--marigold); }
